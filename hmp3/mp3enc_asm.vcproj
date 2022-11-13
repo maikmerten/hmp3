@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding = "big5"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.00"
+	Name="mp3enc"
+	ProjectGUID="{12BE1F5C-DD4C-445B-AC0E-E12B8F98B1EF}"
+	SccProjectName=""
+	SccLocalPath="">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory=".\Debug"
+			IntermediateDirectory=".\Debug"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories=".;.\src\pub;.\src"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="5"
+				PrecompiledHeaderFile=".\Debug/mp3enc.pch"
+				AssemblerListingLocation=".\Debug/"
+				ObjectFile=".\Debug/"
+				ProgramDataBaseFileName=".\Debug/"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="4"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				GenerateDebugInformation="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory=".\Release"
+			IntermediateDirectory=".\Release"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2"
+			WholeProgramOptimization="TRUE">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				GlobalOptimizations="TRUE"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="TRUE"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="FALSE"
+				EnableFiberSafeOptimizations="FALSE"
+				OptimizeForProcessor="2"
+				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories=".;.\src\pub;.\src"
+				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE"
+				StringPooling="TRUE"
+				ExceptionHandling="TRUE"
+				RuntimeLibrary="4"
+				StructMemberAlignment="0"
+				BufferSecurityCheck="TRUE"
+				EnableFunctionLevelLinking="TRUE"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\Release/mp3enc.pch"
+				AssemblerListingLocation=".\Release/"
+				ObjectFile=".\Release/"
+				ProgramDataBaseFileName=".\Release/"
+				SuppressStartupBanner="TRUE"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+		</Configuration>
+	</Configurations>
+	<Files>
+		<Filter
+			Name="Source Files"
+			Filter="c;cpp;asm">
+			<File
+				RelativePath="src\amodini2.c">
+			</File>
+			<File
+				RelativePath="src\bitallo.cpp">
+			</File>
+			<File
+				RelativePath="src\bitallo1.cpp">
+			</File>
+			<File
+				RelativePath="src\bitallo3.cpp">
+			</File>
+			<File
+				RelativePath="src\bitalloc.cpp">
+			</File>
+			<File
+				RelativePath="src\bitallos.cpp">
+			</File>
+			<File
+				RelativePath="src\bitallosc.cpp">
+			</File>
+			<File
+				RelativePath="src\platform\win\i386\cnt.asm">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="src\cnts.c">
+			</File>
+			<File
+				RelativePath="src\detect.c">
+			</File>
+			<File
+				RelativePath="src\emap.c">
+			</File>
+			<File
+				RelativePath="src\platform\win\i386\emdct.asm">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="src\platform\win\i386\filter2.asm">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="src\platform\win\i386\hwin.asm">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="src\l3init.c">
+			</File>
+			<File
+				RelativePath="src\platform\win\i386\l3math.asm">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="src\l3pack.c">
+			</File>
+			<File
+				RelativePath="src\mp3enc.cpp">
+			</File>
+			<File
+				RelativePath="src\pcmhpm.c">
+			</File>
+			<File
+				RelativePath="src\platform\win\i386\pow34.asm">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="src\platform\win\i386\sbt.asm">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="src\setup.c">
+			</File>
+			<File
+				RelativePath="src\spdsmr.c">
+			</File>
+			<File
+				RelativePath="src\srcc.cpp">
+			</File>
+			<File
+				RelativePath="src\srccf.cpp">
+			</File>
+			<File
+				RelativePath="src\srccfb.cpp">
+			</File>
+			<File
+				RelativePath="src\test\tomp3.cpp">
+			</File>
+			<File
+				RelativePath="src\xhead.c">
+			</File>
+			<File
+				RelativePath="src\platform\win\i386\xhwin.asm">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="src\platform\win\i386\xsbt.asm">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml.exe /c /Cx /coff /Fo $(IntDir)\ &quot;$(InputPath)&quot;
+"
+						Outputs="$(IntDir)\$(InputName).obj"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="h">
+			<File
+				RelativePath="src\cnttab.h">
+			</File>
+			<File
+				RelativePath="src\htable.h">
+			</File>
+			<File
+				RelativePath="src\hxtypes.h">
+			</File>
+			<File
+				RelativePath="src\mp3low.h">
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>
