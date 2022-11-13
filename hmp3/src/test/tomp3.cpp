@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: $Id: tomp3.cpp,v 1.2 2005/08/09 20:43:46 karll Exp $ 
+ * Source last modified: 2022/11/23, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -188,7 +188,7 @@ main ( int argc, char *argv[] )
 		ec.mnr_adjust[i] = 0;   /* special, set 0 default */
 
 	mpeg_select = 0;
-	XingHeadFlag = 0;
+	XingHeadFlag = 3;	// write Xing header by default
 
 /****** process command line args */
 	for ( k = 0, i = 1; i < argc; i++ )
@@ -205,11 +205,11 @@ main ( int argc, char *argv[] )
 
 		switch ( argv[i][1] )
 		{
-			case NULL:
+			case '\0':
 				if ( k == 0 )
-					filename = "-";
+					filename = (char*) "-";
 				if ( k == 1 )
-					fileout = "-";
+					fileout = (char*) "-";
 				k++;
 				display_flag = -1;
 				break;
@@ -252,7 +252,9 @@ main ( int argc, char *argv[] )
 
 			case 'x':
 			case 'X':
-				XingHeadFlag = 1 | atoi ( argv[i] + 2 );    // -X2 = toc indicator
+				XingHeadFlag = atoi ( argv[i] + 2 );
+ 				// TOC also needs Xing header bit enabled
+				if(XingHeadFlag == 2) XingHeadFlag = 3;
 			break;
 
 			case 'b':
@@ -738,11 +740,18 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 	if ( XingHeadFlag )
 	{
 		fseek ( handout, 0, SEEK_SET );
-		fread ( bs_buffer, 1, head_bytes ,handout);
-		frames = 1 + Encode.L3_audio_encode_get_frames (  );    // include header frame
-		XingHeaderUpdate ( frames, out_bytes, vbr_scale, NULL, bs_buffer, 0, 0 );
-		fseek ( handout, 0, SEEK_SET );
-		fwrite ( bs_buffer, 1, head_bytes, handout );
+		size_t read_res = fread ( bs_buffer, 1, head_bytes ,handout);
+		if(read_res == (size_t) head_bytes)
+		{
+			frames = 1 + Encode.L3_audio_encode_get_frames (  );    // include header frame
+			XingHeaderUpdate ( frames, out_bytes, vbr_scale, NULL, bs_buffer, 0, 0 );
+			fseek ( handout, 0, SEEK_SET );
+			fwrite ( bs_buffer, 1, head_bytes, handout );
+		}
+		else
+		{
+			fprintf (stderr, "\n READ UNEXPECTED NUMBER OF BYTES WRITING XING HEADER");
+		}
 	}
 
 	/*------- optional info display ----*/
@@ -809,19 +818,18 @@ out_useage (  )
 	"\n          will make a default selection if nsbstereo = -1."
 	"\n          Valid values for Layer III are 3-32."
 	"\nS[filter_select]"
-	"\n          Selects input filtering:  no filter = 0,  DC blocking"
-	"\n          filter = 1."
+	"\n          Selects input filtering:  no filter = 0,  DC blocking filter = 1"
 	"\n          if filter = -1 the encoder will choose (default)"
 	"\nA[algor_select]  0 = track input, 1=MPEG-1, 2=MPEG-2, xxxxx=sample_rate"
 	"\nC         c0 clear copyright bit, c1 set copyright bit"
 	"\nO         o0=copy, o1=original"
-	"\nX         MPEG compatable Xing header, -X2 with/TOC"
+	"\nX         -X1 MPEG compatible Xing header, -X2 with TOC (default), -X0 disable"
 	"\nU         u0=generic, u2=Pentium III(SSE)"
 	"\nQ         disable_taper, q0 = base, q1 = fast, q-1 = encoder chooses"
 	"\nD         Don't display progress"
 	"\nF         Limits encoded subbands to specified frequency, f24000"
 	"\nHF        high frequency encoding. Allows coding above 16000Hz."
-	"\n          hf1=(mode-1 granules), hf2=(all granules), -B96 or -V80 need"
+	"\n          hf1=(mode-1 granules), hf2=(all granules), -B96 or -V80 needed"
 	"\nTX        tx6, test reserved 6 or 8 seems best (startup_adjustNT1B)"
 	"\n            ** v5.0  TEST 1  as of 8/15/00"
 	"\n            ** v5.0  TEST 2  8/18/00"
@@ -833,7 +841,7 @@ out_useage (  )
 	"\n            ** v5.1  2005.08.09 (see CVS log for details)"
 	"\nSBT[short_block_threshold]"
 	"\n          short_block_threshold default = 700"
-	"\nEC        Display Encoder Setting" );
+	"\nEC        Display Encoder Setting\n" );
 
 	return 0;
 }

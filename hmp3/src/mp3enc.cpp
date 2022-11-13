@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: $Id: mp3enc.cpp,v 1.2 2005/08/09 20:43:42 karll Exp $ 
+ * Source last modified: 2022/11/21, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -3446,46 +3446,23 @@ CMp3Enc::L3_audio_encode_MPEG2Packet ( short *pcm,
 int
 CMp3Enc::L3_audio_encode_get_bitrate (  )
 {
-    int br;
-
-    if ( tot_frames_out <= 0 )
-        return 0;
-
-    if ( h_id == 1 )
-    {
-        br = ( int ) ( ( 0.001 * 8.0 ) * tot_bytes_out * samprate /
-                       ( 1152.0 * tot_frames_out ) + 0.5 );
-    }
-    else
-    {
-        br = ( int ) ( ( 0.001 * 8.0 ) * tot_bytes_out * samprate /
-                       ( 576.0 * tot_frames_out ) + 0.5 );
-    }
-    return br;
-
+    return (int)(L3_audio_encode_get_bitrate_float() + 0.5f);
 }
 
 /*--------------------------------------------------------------------*/
 float
 CMp3Enc::L3_audio_encode_get_bitrate_float (  )
 {
-    float br;
-
     if ( tot_frames_out <= 0 )
         return 0.0f;
 
-    if ( h_id == 1 )
-    {
-        br = ( ( 0.001f * 8.0f ) * tot_bytes_out * samprate /
-               ( 1152.0f * tot_frames_out ) );
-    }
-    else
-    {
-        br = ( ( 0.001f * 8.0f ) * tot_bytes_out * samprate /
-               ( 576.0f * tot_frames_out ) );
-    }
-    return br;
+    // 1152 samples per frame for MPEG-1, 576 for MPEG-2
+    float samples = (h_id == 1) ? 1152.0f : 576.0f;
 
+    float br = ( ( 0.001f * 8.0f ) * tot_bytes_out * samprate /
+           ( samples * tot_frames_out ) );
+
+    return br;
 }
 
 /*--------------------------------------------------------------------*/

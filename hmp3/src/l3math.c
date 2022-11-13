@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: $Id: l3math.c,v 1.1 2005/07/13 17:22:20 rggammon Exp $ 
+ * Source last modified: 2022/11/21, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -360,13 +360,7 @@ mbExp ( int x )
 int
 round_to_int ( float x )
 {
-    int ix;
-
-    if ( x >= 0.0 )
-        ix = ( int ) ( x + 0.5f );
-    else
-        ix = ( int ) ( x - 0.5f );
-    return ix;
+    return (int)(x + copysignf(0.5f, x));
 }
 
 /*---------------------------------------------------------------*/

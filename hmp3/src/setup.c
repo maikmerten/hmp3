@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: $Id: setup.c,v 1.2 2005/08/09 20:43:42 karll Exp $ 
+ * Source last modified: 2022/11/23, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -322,7 +322,7 @@ out_setup ( MPEG_HEAD * h )     /* info only */
     fprintf(stderr, "\n Layer %s ", Layer_msg[h->option] );
 
     fprintf(stderr, "  %s ", mode_msg[h->mode] );
-    fprintf(stderr, "  %ldkHz ", sr_table[4 * h->id + h->sr_index] );
+    fprintf(stderr, "  %ldkHz ", (long int) sr_table[4 * h->id + h->sr_index] );
     fprintf(stderr, "  %dkbps ", bitrate );
     if ( h->mode == 1 )
         fprintf(stderr, "  %d stereo bands ", 4 + 4 * h->mode_ext );
@@ -343,7 +343,7 @@ mpeg_info_string ( MPEG_HEAD * h, char *s, E_CONTROL * ec )
     if ( ( h->mode == 1 ) && ( ec->nsbstereo < 32 ) )
         s += sprintf ( s, " IS-%d ", ec->nsbstereo );
 
-    s += sprintf ( s, "  %ldHz ", sr_table[4 * h->id + h->sr_index] );
+    s += sprintf ( s, "  %ldHz ", (long int) sr_table[4 * h->id + h->sr_index] );
 
     if ( ec->vbr_flag == 0 )
     {
