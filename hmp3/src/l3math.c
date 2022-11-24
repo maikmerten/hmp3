@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022/11/21, Maik Merten
+ * Source last modified: 2022/11/24, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -492,20 +492,21 @@ xxxxxxxxxxxxx*/
 
 /*---------------------------------------------------------------*/
 #ifdef _M_IX86	/* Asm versions */
-__inline long
+/*__inline long
 RoundFtoL(float f) {
 	long l;
 	__asm fld	f
 	__asm fistp	l
 	return l;
-}
+}*/
 #else /* C versions */
-long // FIXME: removed __inline to fix linker bug
+/*long // FIXME: removed __inline to fix linker bug
 RoundFtoL(float f) {
 	long l = (long)(f < 0.0f ? f - 0.5f : f + 0.5f);
 	return l;
-}
+}*/
 #endif /* _M_IX86 */
+
 
 int
 ifnc_noise_actual ( const float x34[], const float x[], int gsf, int n, int log_of_n )
@@ -520,7 +521,9 @@ ifnc_noise_actual ( const float x34[], const float x[], int gsf, int n, int log_
     for ( i = 0; i < n; i++ )
     {
 //        qx = ( int ) ( igain * x34[i] + ( 0.5f - 0.0946f ) );
-        qx = RoundFtoL ( igain * x34[i] + ( 0.0f - 0.0946f ) ) ;
+//        qx = RoundFtoL ( igain * x34[i] + ( 0.0f - 0.0946f ) ) ;
+        tmp = ( igain * x34[i] + ( 0.0f - 0.0946f ) ) ;
+        qx = (int)(tmp + copysignf(0.5f, tmp));
         if ( qx < 256 )
         {
             xhat = gain * look_ix43[qx];
