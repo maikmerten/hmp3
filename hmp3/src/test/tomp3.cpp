@@ -188,7 +188,7 @@ main ( int argc, char *argv[] )
 		ec.mnr_adjust[i] = 0;   /* special, set 0 default */
 
 	mpeg_select = 0;
-	XingHeadFlag = 3;	// write Xing header by default
+	XingHeadFlag = (3 | INFOTAG_FLAG);	// write Xing header and info tag by default
 
 /****** process command line args */
 	for ( k = 0, i = 1; i < argc; i++ )
@@ -450,7 +450,7 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 	if ( XingHeadFlag )
 		head_flags = FRAMES_FLAG | BYTES_FLAG | VBR_SCALE_FLAG;
 	if ( XingHeadFlag & 2 )
-		head_flags |= TOC_FLAG; // indicate toc
+		head_flags |= TOC_FLAG | INFOTAG_FLAG; // indicate toc and info tag
 	in_bytes = out_bytes = 0;
 	bs_buffer = NULL;
 	bs_bufbytes = 0;
@@ -768,8 +768,9 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 		size_t read_res = fread ( bs_buffer, 1, head_bytes ,handout);
 		if(read_res == (size_t) head_bytes)
 		{
+			unsigned long samples_audio = audio_bytes / (fi.channels * (fi.bits / 8));
 			frames = 1 + Encode.L3_audio_encode_get_frames (  );    // include header frame
-			XingHeaderUpdate ( frames, out_bytes, vbr_scale, NULL, bs_buffer, 0, 0 );
+			XingHeaderUpdateInfo ( frames, out_bytes, vbr_scale, NULL, bs_buffer, 0, 0, samples_audio, frames_expected, out_bytes, ec.freq_limit, fi.rate );
 			fseek ( handout, 0, SEEK_SET );
 			fwrite ( bs_buffer, 1, head_bytes, handout );
 		}

@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: $Id: xhead.c,v 1.2 2005/08/09 20:43:42 karll Exp $ 
+ * Source last modified: 2022/11/28 Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -183,7 +183,7 @@ XingHeader ( int samprate, int h_mode, int cr_bit, int original_bit,
     h_mode = h_mode & 3;
     cr_bit = cr_bit & 1;
     original_bit = original_bit & 1;
-    head_flags = head_flags & 63;       // max current flags
+    head_flags = head_flags & 127;       // max current flags
     buf0 = buf;
 
     for ( sr_index = 0; sr_index < 6; sr_index++ )
@@ -238,6 +238,9 @@ XingHeader ( int samprate, int h_mode, int cr_bit, int original_bit,
         bytes_required += 20;
     if ( head_flags & VBR_RESERVEDB_FLAG )
         bytes_required += 20;
+
+    if ( head_flags & INFOTAG_FLAG )
+        bytes_required += 36;
 
     tmp = samprate;
     if ( h_id == 0 )
@@ -362,12 +365,29 @@ XingHeader ( int samprate, int h_mode, int cr_bit, int original_bit,
     return frame_bytes;
 }
 
-/*-------------------------------------------------------------*/
+
+
+// old version, for compatiblity
 int
 XingHeaderUpdate ( int frames, int bs_bytes,
                    int vbr_scale,
                    unsigned char *toc, unsigned char *buf,
-                   unsigned char *buf20, unsigned char *buf20B )
+                   unsigned char *buf20, unsigned char *buf20B)
+{
+    // call new version with LAME info tag support, with default values for new parameters
+    return XingHeaderUpdateInfo( frames, bs_bytes, vbr_scale, toc, buf, buf20, buf20B, 0, 0, 0, 0, 0 );
+}
+
+/*-------------------------------------------------------------*/
+int
+XingHeaderUpdateInfo ( int frames, int bs_bytes,
+                   int vbr_scale,
+                   unsigned char *toc, unsigned char *buf,
+                   unsigned char *buf20, unsigned char *buf20B ,
+                   unsigned long samples_audio, int frames_audio,
+                   unsigned int bytes_mp3, unsigned int lowpass,
+                   unsigned int in_samplerate)
+                   
 {
     int i, head_flags;
     int h_id, h_mode;
@@ -464,6 +484,83 @@ XingHeaderUpdate ( int frames, int bs_bytes,
                 buf[i] = 0;     // reserve space
         }
         buf += 20;
+    }
+
+    if (head_flags & INFOTAG_FLAG && samples_audio != 0)
+    {
+        // Encoder short VersionString
+        buf[0] = 'L';
+        buf[1] = 'A';
+        buf[2] = 'M';
+        buf[3] = 'E';
+        buf[4] = '-';
+        buf[5] = 'H';
+        buf[6] = '5';
+        buf[7] = '1';
+        buf[8] = '1';
+        buf += 9;
+        
+        // Info Tag revision + VBR method
+        buf[0] = 0x10; // 0x1 (rev.1) + 0x0 ('unknown VBR')
+        buf++;
+
+        // Lowpass filter value
+        buf[0] = (lowpass / 100) & 0xFF;
+        buf++;
+
+        // ReplayGain
+        InsertI4 ( buf, 0 );
+        buf += 4;
+        InsertI4 ( buf, 0 );
+        buf += 4;
+
+        // Encoding flags + ATH Type
+        buf[0] = 0; // (no --nspsytune, no --nssafejoint, ATH type 0)
+        buf++;
+
+        // specified bitrate if ABR, minimal bitrate otherwise
+        buf[0] = 0; // (unknown)
+        buf++;
+        
+        // encoder delays
+        long samples_mp3 = frames_audio * (h_id == 1 ? 1152 : 576);
+        long pad_total = samples_mp3 - samples_audio;
+        int pad_start = 1680;
+        int pad_end = pad_total - pad_start;
+        buf[0] = (pad_start >> 4) & 0xFF;
+        buf[1] = ((pad_start << 4) & 0xF0 ) | ((pad_end >> 8) & 0x0F);
+        buf[2] = (pad_end & 0xFF);
+        buf += 3;
+
+        // Misc
+        buf[0] = 0x1C;
+        if(in_samplerate == 44100)      buf[0] |= 0x40;
+        else if(in_samplerate == 48000) buf[0] |= 0x80;
+        else if(in_samplerate > 48000)  buf[0] |= 0xC0;
+        buf++;
+
+        // MP3 Gain
+        buf[0] = 0; // 0 dB change
+        buf++;
+
+        // Preset and surround info
+        buf[0] = 0;
+        buf[1] = 0;
+        buf += 2;
+
+        // MusicLength
+        InsertI4 ( buf, bytes_mp3 ); 
+        buf += 4;
+
+        // MusicCRC, TODO: compute CRC
+        buf[0] = 0;
+        buf[1] = 0;
+        buf += 2;
+
+        // Info Tag CRC, TODO: compute CRC
+        buf[0] = 0;
+        buf[1] = 0;
+        buf += 2;
     }
 
     return 1;   // success

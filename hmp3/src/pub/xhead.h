@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: $Id: xhead.h,v 1.1 2005/07/13 17:22:24 rggammon Exp $ 
+ * Source last modified: 2022/11/28 Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -62,6 +62,7 @@ extern "C" {
 #define VBR_SCALE_FLAG  0x0008
 #define VBR_RESERVEDA_FLAG  0x0010
 #define VBR_RESERVEDB_FLAG  0x0020
+#define INFOTAG_FLAG    0x0040
 
 //**** see tomp3.c for an application example ****//
 
@@ -109,6 +110,35 @@ int XingHeaderUpdate ( int frames, int bs_bytes,
 //                  2. toc constructed by XingHeaderTOC
 // input/output
 //      buf         buffer containing mp3 frame to update
+
+int XingHeaderUpdateInfo ( int frames, int bs_bytes,
+                       int vbr_scale,
+                       unsigned char *toc, unsigned char *buf,
+                       unsigned char *buf20, unsigned char *buf20B,
+                       unsigned long samples_audio, int frames_audio,
+                       unsigned int bytes_mp3, unsigned int lowpass,
+                       unsigned int in_samplerate);
+// Update the information in a previously created mp3 frame 
+// that contains a Xing header.
+// This version supports the LAME info header.
+// return  0 = fail,  1 = success
+// input
+//      frames      number frames in bitstream, including
+//                  the header frame, may be place holder, e.g. 0
+//      bytes       number bytes in bitstream, including
+//                  the header frame, may be place holder, e.g. 0
+//      toc         pointer to caller supplied toc buffer,
+//                  may be NULL.  Use NULL for 1. no toc,  
+//                  2. toc constructed by XingHeaderTOC
+//      samples_audio number of actual audio samples
+//      frames_audio  number frames with audio (including padding)
+//      bytes_mp3     size of MP3 file
+//      lowpass       frequency of lowpass filter, in Hz
+//      in_samplerate sample rate of input audio file, in Hz
+// input/output
+//      buf         buffer containing mp3 frame to update
+
+
 
 int XingHeaderTOC ( int frames, int bs_bytes );
 
