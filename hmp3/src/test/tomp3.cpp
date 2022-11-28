@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022/11/23, Maik Merten
+ * Source last modified: 2022/11/28, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -418,9 +418,11 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 	IN_OUT x;
 	int bytes_in_init;
 	char info_string[80];
+	long audio_bytes = 0;
 	int head_bytes;
 	int head_flags;
 	int frames;
+	int frames_expected;
 	INT_PAIR fb;
 	int toc_counter;
 	int vbr_scale;
@@ -631,6 +633,9 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 				pcm_bufbytes ) << 1 ) / pcm_size_factor ) & ( ~1 );
 			nread = fread ( pcm_buffer + pcm_bufbytes,1, readbytes ,handle);
 
+			if(nread > 0)
+				audio_bytes += nread;
+
 			if ( nread < 0 )
 				break;  // read error
 
@@ -660,6 +665,7 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 		tot_cycles += global_cycles;
 		tot_cycles_n++;
 #endif
+		frames_expected++;
 		pcm_bufbytes -= x.in_bytes;
 		pcm_bufptr   += x.in_bytes;
 	        bs_bufbytes  += x.out_bytes;
@@ -712,14 +718,6 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 		}
 	}
 
-	fprintf (stderr, "\r  %6d  | %10d / %10d |   %3d%%   | %6.2f / %6.2f  Kbps",
-		Encode.L3_audio_encode_get_frames() + 1, in_bytes, out_bytes, (int)(in_bytes*100./infilesize),
-		Encode.L3_audio_encode_get_bitrate2_float (  ),
-		Encode.L3_audio_encode_get_bitrate_float (  ) );
-	fprintf (stderr, "\n-------------------------------------------------------------------------------");
-	fprintf (stderr, "\n Compress Ratio %3.6f%%", out_bytes*100./infilesize );
-	//printf(" %d", Encode.L3_audio_encode_get_frames() ); // actual frames in output
-
 	/*
 	* flush the bitstream buffer
 	*/
@@ -732,6 +730,33 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 			goto abort;
 		}
 	}
+
+	// Due to internal housekeeping, the encoder may not actually emit
+	// a frame every call. To flush out all frames, encode additional
+	// silent frames until we get get the expected number of frames.
+
+	// write zero samples into the pcm buffer
+	memset(pcm_buffer,0,bytes_in_init*4);
+	while(Encode.L3_audio_encode_get_frames() < frames_expected) {
+		x = Encode.MP3_audio_encode (pcm_buffer, bs_buffer);
+		bs_bufbytes  = x.out_bytes;
+		out_bytes += x.out_bytes;
+		nwrite = fwrite ( bs_buffer, 1, bs_bufbytes, handout );
+		if ( nwrite != bs_bufbytes )
+		{
+			fprintf (stderr, "\n FILE WRITE ERROR" );
+			goto abort;
+		}
+	}
+
+	fprintf (stderr, "\r  %6d  | %10d / %10d |   %3d%%   | %6.2f / %6.2f  Kbps",
+		Encode.L3_audio_encode_get_frames() + 1, in_bytes, out_bytes, (int)(in_bytes*100./infilesize),
+		Encode.L3_audio_encode_get_bitrate2_float (  ),
+		Encode.L3_audio_encode_get_bitrate_float (  ) );
+	fprintf (stderr, "\n-------------------------------------------------------------------------------");
+	fprintf (stderr, "\n Compress Ratio %3.6f%%", out_bytes*100./infilesize );
+	//printf(" %d", Encode.L3_audio_encode_get_frames() ); // actual frames in output
+
 
 	/*
 	* if we were writing a Xing header, go back and update that header now
