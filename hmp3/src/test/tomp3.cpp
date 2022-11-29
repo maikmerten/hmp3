@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022/11/28, Maik Merten
+ * Source last modified: 2022/11/29, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -737,6 +737,10 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 
 	// write zero samples into the pcm buffer
 	memset(pcm_buffer,0,bytes_in_init*4);
+
+	if(fi.rate < 32000) // adjust for MPEG2
+		frames_expected *= 2;
+
 	while(Encode.L3_audio_encode_get_frames() < frames_expected) {
 		x = Encode.MP3_audio_encode (pcm_buffer, bs_buffer);
 		bs_bufbytes  = x.out_bytes;
@@ -770,7 +774,7 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 		{
 			unsigned long samples_audio = audio_bytes / (fi.channels * (fi.bits / 8));
 			frames = 1 + Encode.L3_audio_encode_get_frames (  );    // include header frame
-			XingHeaderUpdateInfo ( frames, out_bytes, vbr_scale, NULL, bs_buffer, 0, 0, samples_audio, frames_expected, out_bytes, ec.freq_limit, fi.rate );
+			XingHeaderUpdateInfo ( frames, out_bytes, vbr_scale, NULL, bs_buffer, 0, 0, samples_audio, Encode.L3_audio_encode_get_frames(), out_bytes, ec.freq_limit, fi.rate );
 			fseek ( handout, 0, SEEK_SET );
 			fwrite ( bs_buffer, 1, head_bytes, handout );
 		}
