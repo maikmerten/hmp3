@@ -497,9 +497,9 @@ XingHeaderUpdateInfo ( int frames, int bs_bytes,
         buf[1] = 'A';
         buf[2] = 'M';
         buf[3] = 'E';
-        buf[4] = '-';
-        buf[5] = 'H';
-        buf[6] = '5';
+        buf[4] = 'H';
+        buf[5] = '5';
+        buf[6] = '.';
         buf[7] = '1';
         buf[8] = '1';
         buf += 9;
