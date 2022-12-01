@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022/11/29 Maik Merten
+ * Source last modified: 2022/12/01, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -379,7 +379,7 @@ XingHeaderUpdate ( int frames, int bs_bytes,
                    unsigned char *buf20, unsigned char *buf20B)
 {
     // call new version with LAME info tag support, with default values for new parameters
-    return XingHeaderUpdateInfo( frames, bs_bytes, vbr_scale, toc, buf, buf20, buf20B, 0, 0, 0, 0, 0 );
+    return XingHeaderUpdateInfo( frames, bs_bytes, vbr_scale, toc, buf, buf20, buf20B, 0, 0, 0, 0 );
 }
 
 /*-------------------------------------------------------------*/
@@ -388,7 +388,7 @@ XingHeaderUpdateInfo ( int frames, int bs_bytes,
                    int vbr_scale,
                    unsigned char *toc, unsigned char *buf,
                    unsigned char *buf20, unsigned char *buf20B ,
-                   unsigned long samples_audio, int frames_audio,
+                   unsigned long samples_audio,
                    unsigned int bytes_mp3, unsigned int lowpass,
                    unsigned int in_samplerate)
                    
@@ -527,7 +527,7 @@ XingHeaderUpdateInfo ( int frames, int bs_bytes,
         buf++;
         
         // encoder delays
-        long samples_mp3 = frames_audio * (h_id == 1 ? 1152 : 576);
+        long samples_mp3 = frames * (h_id == 1 ? 1152 : 576);
         long pad_total = samples_mp3 - samples_audio;
         int pad_start = 1680;
         int pad_end = pad_total - pad_start;

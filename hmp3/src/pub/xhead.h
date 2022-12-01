@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022/11/28 Maik Merten
+ * Source last modified: 2022/12/01, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -101,8 +101,7 @@ int XingHeaderUpdate ( int frames, int bs_bytes,
 // that contains a Xing header
 // return  0 = fail,  1 = success
 // input
-//      frames      number frames in bitstream, including
-//                  the header frame, may be place holder, e.g. 0
+//      frames      number of audio frames in bitstream
 //      bytes       number bytes in bitstream, including
 //                  the header frame, may be place holder, e.g. 0
 //      toc         pointer to caller supplied toc buffer,
@@ -115,7 +114,7 @@ int XingHeaderUpdateInfo ( int frames, int bs_bytes,
                        int vbr_scale,
                        unsigned char *toc, unsigned char *buf,
                        unsigned char *buf20, unsigned char *buf20B,
-                       unsigned long samples_audio, int frames_audio,
+                       unsigned long samples_audio,
                        unsigned int bytes_mp3, unsigned int lowpass,
                        unsigned int in_samplerate);
 // Update the information in a previously created mp3 frame 
@@ -123,15 +122,13 @@ int XingHeaderUpdateInfo ( int frames, int bs_bytes,
 // This version supports the LAME info header.
 // return  0 = fail,  1 = success
 // input
-//      frames      number frames in bitstream, including
-//                  the header frame, may be place holder, e.g. 0
+//      frames      number of audio frames in bitstream
 //      bytes       number bytes in bitstream, including
 //                  the header frame, may be place holder, e.g. 0
 //      toc         pointer to caller supplied toc buffer,
 //                  may be NULL.  Use NULL for 1. no toc,  
 //                  2. toc constructed by XingHeaderTOC
 //      samples_audio number of actual audio samples
-//      frames_audio  number frames with audio (including padding)
 //      bytes_mp3     size of MP3 file
 //      lowpass       frequency of lowpass filter, in Hz
 //      in_samplerate sample rate of input audio file, in Hz
