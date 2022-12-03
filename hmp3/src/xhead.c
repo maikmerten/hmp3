@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022/12/01, Maik Merten
+ * Source last modified: 2022/12/03, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -220,10 +220,6 @@ XingHeader ( int samprate, int h_mode, int cr_bit, int original_bit,
         side_bytes = 17;
         if ( h_mode == 3 )
             side_bytes = 9;
-
-        // skip info tag for MPEG2 until properly tested
-        if ( head_flags & INFOTAG_FLAG )
-            head_flags ^= INFOTAG_FLAG;
     }
 
     // determine required br_index
