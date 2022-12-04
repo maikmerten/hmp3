@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022/12/01, Maik Merten
+ * Source last modified: 2022/12/04, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -65,6 +65,16 @@ extern "C" {
 #define INFOTAG_FLAG    0x0040
 
 //**** see tomp3.c for an application example ****//
+
+int XingHeaderBitrateIndex ( int h_mode, int bitrate) ;
+// helper function to convert a bitrate to a bitrate-index as
+// needed by XingHeader
+// input:
+//      h_mode    mpeg coding mode (0 = mpeg2, 1 = mpeg1)
+//      bitrate   bitrate in kbps
+// output:
+//      a bitrate index
+
 
 int XingHeader ( int samprate, int h_mode, int cr_bit, int original,
                  int flags, int frames, int bs_bytes,

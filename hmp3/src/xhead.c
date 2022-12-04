@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022/12/03, Maik Merten
+ * Source last modified: 2022/12/04, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -158,6 +158,25 @@ BuildTOC ( int tot_frames, int tot_bytes, unsigned char *buf )
 
 /*-------------------------------------------------------------*/
 int
+XingHeaderBitrateIndex ( int h_mode, int bitrate )
+{
+    int brIndex;
+    h_mode &= 0x1; // allow only 0 and 1
+
+    for( brIndex = 1; brIndex < 15; brIndex++ )
+    {
+        if( br_table[h_mode][brIndex] == bitrate )
+        {
+            return brIndex; // found bitrate index
+        }
+    }
+
+    return 0; // didn't find bitrate index
+}
+
+
+/*-------------------------------------------------------------*/
+int
 XingHeader ( int samprate, int h_mode, int cr_bit, int original_bit,
              int head_flags, int frames, int bs_bytes,
              int vbr_scale,
@@ -210,16 +229,17 @@ XingHeader ( int samprate, int h_mode, int cr_bit, int original_bit,
     }
     else
     {
-        // if CBR turn off TOC (it may be too large)
-        if ( vbr_scale == -1 )
-        {
-            if ( head_flags & TOC_FLAG )
-                head_flags ^= TOC_FLAG;
-        }
         // mpeg2
         side_bytes = 17;
         if ( h_mode == 3 )
             side_bytes = 9;
+    }
+
+    // if CBR turn off TOC (it may be too large)
+    if ( vbr_scale == -1 )
+    {
+        if ( head_flags & TOC_FLAG )
+            head_flags ^= TOC_FLAG;
     }
 
     // determine required br_index
