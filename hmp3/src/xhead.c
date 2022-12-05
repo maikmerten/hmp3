@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022/12/04, Maik Merten
+ * Source last modified: 2022/12/05, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -516,12 +516,12 @@ XingHeaderUpdateInfo ( int frames, int bs_bytes,
         buf[4] = 'H';
         buf[5] = '5';
         buf[6] = '.';
-        buf[7] = '1';
-        buf[8] = '1';
+        buf[7] = '2';
+        buf[8] = '0';
         buf += 9;
         
         // Info Tag revision + VBR method
-        buf[0] = 0x10; // 0x1 (rev.1) + 0x0 ('unknown VBR')
+        buf[0] = 0x00; // 0x0 (rev.0) + 0x0 ('unknown VBR')
         buf++;
 
         // Lowpass filter value

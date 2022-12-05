@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022/12/04, Maik Merten
+ * Source last modified: 2022/12/05, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -34,6 +34,8 @@
  * Contributor(s):  
  *   
  * ***** END LICENSE BLOCK ***** */
+
+char datestring[11] = "2022/05/12";
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -140,8 +142,8 @@ main ( int argc, char *argv[] )
 	char *fileout;
 	E_CONTROL ec;
 	int frames;
-	fprintf (stderr, "\n  file-file MPEG Layer III audio encode v5.1.1 2005.08.09"
-		"\n Copyright 1995-2005 RealNetworks, Inc."
+	fprintf (stderr, "\n hmp3 MPEG Layer III audio encoder v5.2.0, %s"
+		"\n Utilizing the Helix MP3 encoder, Copyright 1995-2005 RealNetworks, Inc."
 		"\n"
 		"\n Usage:  hmp3 <input> <output> [options]"
 		"\n          <input> and/or <output> can be \"-\", which means stdin/stdout."
@@ -154,7 +156,7 @@ main ( int argc, char *argv[] )
 		"\n           -C -X -O"
 		"\n           -D -Qquick -Ffreq_limit -Ucpu_select -TXtest1"
 		"\n           -SBTshort_block_threshold -EC"
-		"\n           -h (detailed help)\n\n" );
+		"\n           -h (detailed help)\n\n", datestring );
 	filename = default_file;
 	fileout = default_outfile;
 
