@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022-12-05, Maik Merten
+ * Source last modified: 2022-12-06, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -304,10 +304,22 @@ XingHeader ( int samprate, int h_mode, int cr_bit, int original_bit,
         buf[i] = 0;
     buf += side_bytes;
 
-    buf[0] = 'X';
-    buf[1] = 'i';
-    buf[2] = 'n';
-    buf[3] = 'g';
+    if ( vbr_scale != -1 )
+    {
+        // VBR
+        buf[0] = 'X';
+        buf[1] = 'i';
+        buf[2] = 'n';
+        buf[3] = 'g';
+    }
+    else
+    {
+        // CBR
+        buf[0] = 'I';
+        buf[1] = 'n';
+        buf[2] = 'f';
+        buf[3] = 'o';
+    }
     buf += 4;
 
     InsertI4 ( buf, head_flags );
@@ -433,14 +445,22 @@ XingHeaderUpdateInfo ( int frames, int bs_bytes,
             buf += ( 9 + 4 );
     }
 
-    if ( buf[0] != 'X' )
-        return 0;
-    if ( buf[1] != 'i' )
-        return 0;
-    if ( buf[2] != 'n' )
-        return 0;
-    if ( buf[3] != 'g' )
-        return 0;
+    if ( vbr_scale != -1 )
+    {
+        // VBR
+        if ( buf[0] != 'X' || buf[1] != 'i' || buf[2] != 'n' || buf[3] != 'g' )
+        {
+            return 0;
+        }
+    }
+    else
+    {
+        // CBR
+        if ( buf[0] != 'I' || buf[1] != 'n' || buf[2] != 'f' || buf[3] != 'o' )
+        {
+            return 0;
+        }
+    }
     buf += 4;
 
     head_flags = ExtractI4 ( buf );
@@ -521,7 +541,8 @@ XingHeaderUpdateInfo ( int frames, int bs_bytes,
         buf += 9;
         
         // Info Tag revision + VBR method
-        buf[0] = 0x00; // 0x0 (rev.0) + 0x0 ('unknown VBR')
+        // 0x0 (rev.0) | (0x0 ('unknown VBR') or 0x1 ('constant bitrate')
+        buf[0] = (0x0 << 4) | (vbr_scale != -1 ? 0x0 : 0x1);
         buf++;
 
         // Lowpass filter value
