@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022/12/05, Maik Merten
+ * Source last modified: 2022-12-06, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -35,7 +35,7 @@
  *   
  * ***** END LICENSE BLOCK ***** */
 
-char datestring[11] = "2022/05/12";
+char datestring[11] = "2022-12-06";
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -400,7 +400,10 @@ main ( int argc, char *argv[] )
 		fprintf (stderr, "\n" );
 	}
 
-	return frames;
+	if( frames <= 0 )
+		return 1; // return with error
+	else
+		return 0; // return normally
 }
 
 /*-------------------------------------------------------------*/
