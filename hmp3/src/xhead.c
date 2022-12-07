@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022-12-06, Maik Merten
+ * Source last modified: 2022-12-07, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -43,6 +43,11 @@
 #include "xhead.h"
 #include "hxtypes.h"
 
+static const char tag_vbr[] = { "Xing" };
+static const char tag_cbr[] = { "Info" };
+static const char tag_shortversion[] = { "LAMEH5.20" };
+
+
 // 4   Xing
 // 4   flags
 // 4   frames
@@ -66,6 +71,28 @@ static const int br_table[2][16] = {
 static int table[N + 1][2];
 static int toc_ptr;
 static int toc_n;
+
+/*-------------------------------------------------------------*/
+static void
+InsertString ( unsigned char *buf, const char *str, int n )
+{
+    for( int i = 0; i < n; i++ )
+    {
+        buf[i] = str[i];
+    }
+}
+
+/*-------------------------------------------------------------*/
+static int
+BufStringEqual ( unsigned char *buf, const char *str, int n )
+{
+    for( int i = 0; i < n; i++ )
+    {
+        if(buf[i] != str[i]) return 0;
+    }
+    return 1;
+}
+
 
 /*-------------------------------------------------------------*/
 static void
@@ -235,11 +262,10 @@ XingHeader ( int samprate, int h_mode, int cr_bit, int original_bit,
             side_bytes = 9;
     }
 
-    // if CBR turn off TOC (it may be too large)
-    if ( vbr_scale == -1 )
+    // if CBR turn off TOC for low bitrates (it may be too large)
+    if ( vbr_scale == -1 && br_table[h_id][nBitRateIndex] < 64 )
     {
-        if ( head_flags & TOC_FLAG )
-            head_flags ^= TOC_FLAG;
+        head_flags &= ~TOC_FLAG;
     }
 
     // determine required br_index
@@ -307,18 +333,12 @@ XingHeader ( int samprate, int h_mode, int cr_bit, int original_bit,
     if ( vbr_scale != -1 )
     {
         // VBR
-        buf[0] = 'X';
-        buf[1] = 'i';
-        buf[2] = 'n';
-        buf[3] = 'g';
+        InsertString(buf, tag_vbr, 4);
     }
     else
     {
         // CBR
-        buf[0] = 'I';
-        buf[1] = 'n';
-        buf[2] = 'f';
-        buf[3] = 'o';
+        InsertString(buf, tag_cbr, 4);
     }
     buf += 4;
 
@@ -448,7 +468,7 @@ XingHeaderUpdateInfo ( int frames, int bs_bytes,
     if ( vbr_scale != -1 )
     {
         // VBR
-        if ( buf[0] != 'X' || buf[1] != 'i' || buf[2] != 'n' || buf[3] != 'g' )
+        if(!BufStringEqual(buf, tag_vbr, 4))
         {
             return 0;
         }
@@ -456,7 +476,7 @@ XingHeaderUpdateInfo ( int frames, int bs_bytes,
     else
     {
         // CBR
-        if ( buf[0] != 'I' || buf[1] != 'n' || buf[2] != 'f' || buf[3] != 'o' )
+        if(!BufStringEqual(buf, tag_cbr, 4))
         {
             return 0;
         }
@@ -529,15 +549,7 @@ XingHeaderUpdateInfo ( int frames, int bs_bytes,
     if (head_flags & INFOTAG_FLAG && samples_audio != 0)
     {
         // Encoder short VersionString
-        buf[0] = 'L';
-        buf[1] = 'A';
-        buf[2] = 'M';
-        buf[3] = 'E';
-        buf[4] = 'H';
-        buf[5] = '5';
-        buf[6] = '.';
-        buf[7] = '2';
-        buf[8] = '0';
+        InsertString(buf, tag_shortversion, 9);
         buf += 9;
         
         // Info Tag revision + VBR method

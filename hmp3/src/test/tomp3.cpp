@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022-12-06, Maik Merten
+ * Source last modified: 2022-12-07, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -35,7 +35,7 @@
  *   
  * ***** END LICENSE BLOCK ***** */
 
-char datestring[11] = "2022-12-06";
+char datestring[11] = "2022-12-07";
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -612,7 +612,7 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 		head_bytes = XingHeader ( ec.samprate, head.mode,
 			ec.cr_bit, ec.original, head_flags, 0, 0,
 			vbr_scale, NULL, bs_buffer + bs_bufbytes,
-			0,0, XingHeaderBitrateIndex( head.mode, ec.bitrate ) );
+			0,0, XingHeaderBitrateIndex( head.mode, ec.bitrate * fi.channels ) );
 
 		bs_bufbytes += head_bytes;
 		out_bytes += head_bytes;
