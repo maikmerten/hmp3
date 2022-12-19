@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022-12-07, Maik Merten
+ * Source last modified: 2022-12-19, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -35,7 +35,7 @@
  *   
  * ***** END LICENSE BLOCK ***** */
 
-char datestring[11] = "2022-12-07";
+char datestring[11] = "2022-12-19";
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -426,6 +426,7 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 	long audio_bytes = 0;
 	int head_bytes;
 	int head_flags;
+    unsigned short head_musiccrc = 0x0000;
 	int frames;
 	int frames_expected;
 	INT_PAIR fb;
@@ -616,6 +617,16 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 
 		bs_bufbytes += head_bytes;
 		out_bytes += head_bytes;
+
+        // flush buffer with Xing header now, so it won't interfere with
+        // calculating MusicCRC later on.
+        nwrite = fwrite ( bs_buffer, 1, bs_bufbytes, handout );
+        if ( nwrite != bs_bufbytes )
+		{
+            fprintf (stderr, "\n FILE WRITE ERROR" );
+            goto abort;
+		}
+        bs_bufbytes = 0;
 	}
 
 	fprintf (stderr, "\n" );
@@ -683,6 +694,8 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 				fprintf (stderr, "\n FILE WRITE ERROR" );
 				break;
 			}
+            head_musiccrc = XingHeaderUpdateCRC(head_musiccrc, bs_buffer, bs_bufbytes);
+
 			bs_bufbytes = 0;
 		}
 
@@ -734,6 +747,7 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 			fprintf (stderr, "\n FILE WRITE ERROR" );
 			goto abort;
 		}
+        head_musiccrc = XingHeaderUpdateCRC(head_musiccrc, bs_buffer, bs_bufbytes);
 	}
 
 	// Due to internal housekeeping, the encoder may not actually emit
@@ -756,6 +770,7 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 			fprintf (stderr, "\n FILE WRITE ERROR" );
 			goto abort;
 		}
+        head_musiccrc = XingHeaderUpdateCRC(head_musiccrc, bs_buffer, bs_bufbytes);
 	}
 
 	fprintf (stderr, "\r  %6d  | %10d / %10d |   %3d%%   | %6.2f / %6.2f  Kbps",
@@ -779,7 +794,7 @@ ff_encode ( char *filename, char *fileout, E_CONTROL * ec0 )
 		{
 			unsigned long samples_audio = audio_bytes / (fi.channels * (fi.bits / 8));
 			frames = Encode.L3_audio_encode_get_frames (  );
-			XingHeaderUpdateInfo ( frames, out_bytes, vbr_scale, NULL, bs_buffer, 0, 0, samples_audio, out_bytes, ec.freq_limit, fi.rate );
+			XingHeaderUpdateInfo ( frames, out_bytes, vbr_scale, NULL, bs_buffer, 0, 0, samples_audio, out_bytes, ec.freq_limit, fi.rate, head_musiccrc );
 			fseek ( handout, 0, SEEK_SET );
 			fwrite ( bs_buffer, 1, head_bytes, handout );
 		}

@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022-12-04, Maik Merten
+ * Source last modified: 2022-12-19, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -66,6 +66,17 @@ extern "C" {
 
 //**** see tomp3.c for an application example ****//
 
+unsigned short XingHeaderUpdateCRC ( unsigned short crc, unsigned char *data, int len) ;
+// Update a provide CRC value for a given data buffer. Intended to
+// generate the MusicCRC-field in the LAME info tag.
+// input:
+//      crc       current CRC value
+//      *data     pointer to data buffer
+//      len       number of bytes to be processec from buffer
+// output.
+//      updated, reflected CRC
+
+
 int XingHeaderBitrateIndex ( int h_mode, int bitrate) ;
 // helper function to convert a bitrate to a bitrate-index as
 // needed by XingHeader
@@ -126,7 +137,7 @@ int XingHeaderUpdateInfo ( int frames, int bs_bytes,
                        unsigned char *buf20, unsigned char *buf20B,
                        unsigned long samples_audio,
                        unsigned int bytes_mp3, unsigned int lowpass,
-                       unsigned int in_samplerate);
+                       unsigned int in_samplerate, unsigned short musiccrc);
 // Update the information in a previously created mp3 frame 
 // that contains a Xing header.
 // This version supports the LAME info header.
@@ -142,6 +153,7 @@ int XingHeaderUpdateInfo ( int frames, int bs_bytes,
 //      bytes_mp3     size of MP3 file
 //      lowpass       frequency of lowpass filter, in Hz
 //      in_samplerate sample rate of input audio file, in Hz
+//      musiccrc    value for musicCRC-field of LAME info header
 // input/output
 //      buf         buffer containing mp3 frame to update
 
