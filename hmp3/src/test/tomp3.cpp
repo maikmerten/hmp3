@@ -35,7 +35,7 @@
  *   
  * ***** END LICENSE BLOCK ***** */
 
-char datestring[11] = "2022-12-19";
+char versionstring[24] = "5.2.1, 2022-12-19";
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -142,7 +142,7 @@ main ( int argc, char *argv[] )
 	char *fileout;
 	E_CONTROL ec;
 	int frames;
-	fprintf (stderr, "\n hmp3 MPEG Layer III audio encoder v5.2.0, %s"
+	fprintf (stderr, "\n hmp3 MPEG Layer III audio encoder %s"
 		"\n Utilizing the Helix MP3 encoder, Copyright 1995-2005 RealNetworks, Inc."
 		"\n"
 		"\n Usage:  hmp3 <input> <output> [options]"
@@ -156,7 +156,7 @@ main ( int argc, char *argv[] )
 		"\n           -C -X -O"
 		"\n           -D -Qquick -Ffreq_limit -Ucpu_select -TXtest1"
 		"\n           -SBTshort_block_threshold -EC"
-		"\n           -h (detailed help)\n\n", datestring );
+		"\n           -h (detailed help)\n\n", versionstring );
 	filename = default_file;
 	fileout = default_outfile;
 
