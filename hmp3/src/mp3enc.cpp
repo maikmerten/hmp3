@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022-11-21, Maik Merten
+ * Source last modified: 2024-03-17, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -592,7 +592,7 @@ CMp3Enc::L3_audio_encode_init ( E_CONTROL * ec_arg )
 /*------- input filter function selection ----*/
     filter2_init ( samprate, ec.filter_select, monodual, &fc2 );
 
-    bytes_in = ( 1 + monodual ) * ( sizeof ( short ) * 1152 );
+    bytes_in = ( 1 + monodual ) * ( sizeof ( float ) * 1152 );
 
 /*--- init encoder tables ----*/
 
@@ -2028,7 +2028,7 @@ CMp3Enc::encode_singleB_MPEG2 (  )
 
 /*====================================================================*/
 IN_OUT
-CMp3Enc::L3_audio_encode ( short *pcm, unsigned char *bs_out )
+CMp3Enc::L3_audio_encode ( float *pcm, unsigned char *bs_out )
 {
 
     switch ( iL3_audio_encode_function )
@@ -2048,7 +2048,7 @@ CMp3Enc::L3_audio_encode ( short *pcm, unsigned char *bs_out )
 
 /*====================================================================*/
 IN_OUT
-CMp3Enc::L3_audio_encode_Packet ( short *pcm,
+CMp3Enc::L3_audio_encode_Packet ( float *pcm,
                                   unsigned char *bs_out,
                                   unsigned char *packet, int nbytes_out[2] )
 {
@@ -2103,7 +2103,7 @@ CMp3Enc::L3_pack_head_vbr ( unsigned char *bs_out,
 
 /*====================================================================*/
 IN_OUT
-CMp3Enc::L3_audio_encode_vbr_MPEG1 ( short *pcm, unsigned char *bs_out )
+CMp3Enc::L3_audio_encode_vbr_MPEG1 ( float *pcm, unsigned char *bs_out )
 {
     IN_OUT x;
     int bytes;
@@ -2227,7 +2227,7 @@ CMp3Enc::L3_audio_encode_vbr_MPEG1 ( short *pcm, unsigned char *bs_out )
 
 /*====================================================================*/
 IN_OUT
-CMp3Enc::L3_audio_encode_MPEG1 ( short *pcm, unsigned char *bs_out )
+CMp3Enc::L3_audio_encode_MPEG1 ( float *pcm, unsigned char *bs_out )
 {
     IN_OUT x;
     int bytes;
@@ -2334,7 +2334,7 @@ CMp3Enc::L3_audio_encode_MPEG1 ( short *pcm, unsigned char *bs_out )
 
 /*====================================================================*/
 IN_OUT
-CMp3Enc::L3_audio_encode_vbr_MPEG2 ( short *pcm, unsigned char *bs_out )
+CMp3Enc::L3_audio_encode_vbr_MPEG2 ( float *pcm, unsigned char *bs_out )
 {
     IN_OUT x;
     int bytes, bytes2, bytes3;
@@ -2480,7 +2480,7 @@ CMp3Enc::L3_audio_encode_vbr_MPEG2 ( short *pcm, unsigned char *bs_out )
 
 /*====================================================================*/
 IN_OUT
-CMp3Enc::L3_audio_encode_MPEG2 ( short *pcm, unsigned char *bs_out )
+CMp3Enc::L3_audio_encode_MPEG2 ( float *pcm, unsigned char *bs_out )
 {
     IN_OUT x;
     int bytes;
@@ -2652,14 +2652,13 @@ find_nearest ( const int *table, int n, int x )
 
 /*==================================================================*/
 int
-CMp3Enc::MP3_audio_encode_init ( E_CONTROL * ec_arg, int input_type,    // 0=16 bit linear,1=8 bitlinear
+CMp3Enc::MP3_audio_encode_init ( E_CONTROL * ec_arg, int source_bits, int source_is_float,
                                  int mpeg_select, int mono_convert )
 {
     E_CONTROL ec;
     E_CONTROL ec2;
     int source, target;
     int source_chan, target_chan;
-    int source_bits;
     int convert_flag;
     int encode_input_bytes;
     int encode_cutoff_freq;
@@ -2698,10 +2697,6 @@ CMp3Enc::MP3_audio_encode_init ( E_CONTROL * ec_arg, int input_type,    // 0=16 
     target_chan = source_chan;
     if ( mono_convert )
         target_chan = 1;
-
-    source_bits = 16;
-    if ( input_type == 1 )
-        source_bits = 8;
 
 /*------ determine encode sample rate --------*/
     if ( mpeg_select < 0 )
@@ -2755,13 +2750,15 @@ CMp3Enc::MP3_audio_encode_init ( E_CONTROL * ec_arg, int input_type,    // 0=16 
     }
 
 /*--- determine if conversion required */
-    convert_flag = 0;   // assume no conversion
-    if ( source_bits != 16 )
+    convert_flag = 1;   // conversion always needed
+    /*
+    if ( !(source_bits == 32 && source_is_float) )
         convert_flag = 1;
     if ( source != target )
         convert_flag = 1;
     if ( source_chan != target_chan )
         convert_flag = 1;
+    */
 
 /*--- init sample rate conversion ---*/
     nsb_limit = -1;     // use nsb limit because of L3 low rate auto limit logic
@@ -2769,7 +2766,7 @@ CMp3Enc::MP3_audio_encode_init ( E_CONTROL * ec_arg, int input_type,    // 0=16 
     {
         src = new Csrc; // sample rate conversion
         min_input_bytes =
-            src->sr_convert_init ( source, source_chan, source_bits, target,
+            src->sr_convert_init ( source, source_chan, source_bits, source_is_float, target,
                                    target_chan, &encode_cutoff_freq );
         if ( min_input_bytes <= 0 )
             return 0;   // conversion init failed
@@ -2804,8 +2801,8 @@ CMp3Enc::MP3_audio_encode_init ( E_CONTROL * ec_arg, int input_type,    // 0=16 
 /*-- select converter/encoder combination --*/
 //encode = L3_convert_encode;
     src_encode = 1;
-    src_pcmbuf = new short[2304];
-    memset ( src_pcmbuf, 0, 2304 * sizeof ( short ) );
+    src_pcmbuf = new float[2304];
+    memset ( src_pcmbuf, 0, 2304 * sizeof (float) );
 
     return min_input_bytes;
 }
@@ -2818,7 +2815,7 @@ CMp3Enc::MP3_audio_encode ( unsigned char *pcm, unsigned char *bs_out )
 
     if ( src_encode == 0 )
     {
-        return L3_audio_encode ( ( short * ) pcm, bs_out );
+        return L3_audio_encode ( ( float * ) pcm, bs_out );
     }
     else
     {
@@ -2840,7 +2837,7 @@ CMp3Enc::MP3_audio_encode_Packet ( unsigned char *pcm,
 
     if ( src_encode == 0 )
     {
-        return L3_audio_encode_Packet ( ( short * ) pcm, bs_out,
+        return L3_audio_encode_Packet ( ( float * ) pcm, bs_out,
                                         packet, nbytes_out );
     }
     else
@@ -2868,7 +2865,7 @@ CMp3Enc::MP3_audio_encode_Packet ( unsigned char *pcm,
 
 /*====================================================================*/
 IN_OUT
-CMp3Enc::L3_audio_encode_vbr_MPEG1Packet ( short *pcm,
+CMp3Enc::L3_audio_encode_vbr_MPEG1Packet ( float *pcm,
                                            unsigned char *bs_out,
                                            unsigned char *packet,
                                            int nbytes_out[2] )
@@ -3014,7 +3011,7 @@ CMp3Enc::L3_audio_encode_vbr_MPEG1Packet ( short *pcm,
 
 /*====================================================================*/
 IN_OUT
-CMp3Enc::L3_audio_encode_MPEG1Packet ( short *pcm,
+CMp3Enc::L3_audio_encode_MPEG1Packet ( float *pcm,
                                        unsigned char *bs_out,
                                        unsigned char *packet,
                                        int nbytes_out[2] )
@@ -3137,7 +3134,7 @@ CMp3Enc::L3_audio_encode_MPEG1Packet ( short *pcm,
 
 /*====================================================================*/
 IN_OUT
-CMp3Enc::L3_audio_encode_vbr_MPEG2Packet ( short *pcm,
+CMp3Enc::L3_audio_encode_vbr_MPEG2Packet ( float *pcm,
                                            unsigned char *bs_out,
                                            unsigned char *packet,
                                            int nbytes_out[2] )
@@ -3301,7 +3298,7 @@ CMp3Enc::L3_audio_encode_vbr_MPEG2Packet ( short *pcm,
 
 /*====================================================================*/
 IN_OUT
-CMp3Enc::L3_audio_encode_MPEG2Packet ( short *pcm,
+CMp3Enc::L3_audio_encode_MPEG2Packet ( float *pcm,
                                        unsigned char *bs_out,
                                        unsigned char *packet,
                                        int nbytes_out[2] )
@@ -3479,7 +3476,6 @@ CMp3Enc::L3_audio_encode_get_bitrate2_float (  )
         samprate;
 
     return br;
-
 }
 
 /*--------------------------------------------------------------------*/

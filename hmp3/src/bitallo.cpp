@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: $Id: bitallo.cpp,v 1.1 2005/07/13 17:22:20 rggammon Exp $ 
+ * Source last modified: 2024-03-14, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -45,9 +45,9 @@ block_type ( 0 )
 {
 }
 
-CBitAllo::~CBitAllo (  )
+/*CBitAllo::~CBitAllo (  )
 {
-}
+}*/
 
 //======================================================
 int

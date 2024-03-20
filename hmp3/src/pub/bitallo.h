@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: $Id: bitallo.h,v 1.1 2005/07/13 17:22:24 rggammon Exp $ 
+ * Source last modified: 2024-03-14, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -74,7 +74,7 @@ class CBitAllo
   public:
     CBitAllo (  );
 
-    ~CBitAllo (  );
+    virtual ~CBitAllo (  ) = default;
 
     virtual void BitAllo ( float xr_arg[][576], SIG_MASK sm_arg[][36],
                            int ch_arg, int nchan_arg,

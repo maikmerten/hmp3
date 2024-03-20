@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: $Id: filter2.h,v 1.1 2005/07/13 17:22:24 rggammon Exp $ 
+ * Source last modified: 2024-03-16, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -54,7 +54,7 @@ extern "C"
     void filter2_init ( int samprate, int filter_select,
                         int monodual, FILTER2_CONTROL * fc2 );
 
-    void filter2 ( short pcm[], float *buf1, float *buf2,
+    void filter2 ( float pcm[], float *buf1, float *buf2,
                    FILTER2_CONTROL * fc2 );
 
 //----------------------------------------------  

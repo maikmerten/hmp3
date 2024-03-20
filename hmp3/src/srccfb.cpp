@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: $Id: srccfb.cpp,v 1.1 2005/07/13 17:22:20 rggammon Exp $ 
+ * Source last modified: 2024-03-16, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -65,19 +65,19 @@
 
 /*====================================================================*/
 int
-Csrc::src_bfilter_mono_case0 ( unsigned char x[], short y[] )
+Csrc::src_bfilter_mono_case0 ( unsigned char x[], float y[] )
 {
     int i;
 
     for ( i = 0; i < 1152; i++ )
-        y[i] = ( short ) ( ( ( ( int ) x[i] ) - 128 ) << 8 );
+        y[i] = ( float ) ( ( ( ( int ) x[i] ) - 128 ) << 8 );
 
     return 1152;        // number bytes taken in
 }
 
 /*====================================================================*/
 int
-Csrc::src_bfilter_mono_case1 ( unsigned char x[], short y[] )
+Csrc::src_bfilter_mono_case1 ( unsigned char x[], float y[] )
 {
     int i, k;
     int a, b;
@@ -89,11 +89,11 @@ Csrc::src_bfilter_mono_case1 ( unsigned char x[], short y[] )
     for ( i = 0; i < 576; i += 2, k += 4 )
     {
         b = ( ( ( ( int ) x[i + 1] ) - 128 ) << 8 );
-        y[k] = ( short ) ( a );
-        y[k + 1] = ( short ) ( ( a + b ) >> 1 );
+        y[k] = ( float ) ( a );
+        y[k + 1] = ( float ) ( ( a + b ) >> 1 );
         a = ( ( ( ( int ) x[i + 2] ) - 128 ) << 8 );
-        y[k + 2] = ( short ) ( b );
-        y[k + 3] = ( short ) ( ( a + b ) >> 1 );
+        y[k + 2] = ( float ) ( b );
+        y[k + 3] = ( float ) ( ( a + b ) >> 1 );
 
     }
     return 576; // number bytes taken in
@@ -101,7 +101,7 @@ Csrc::src_bfilter_mono_case1 ( unsigned char x[], short y[] )
 
 /*====================================================================*/
 int
-Csrc::src_bfilter_mono_case2 ( unsigned char x[], short y[] )
+Csrc::src_bfilter_mono_case2 ( unsigned char x[], float y[] )
 {
     int i, k;
     int a, b;
@@ -113,7 +113,7 @@ Csrc::src_bfilter_mono_case2 ( unsigned char x[], short y[] )
     b = ( ( ( ( int ) x[0 + 1] ) - 128 ) << 8 ) - a;
     for ( i = 0; i < 1152; i++ )
     {
-        y[i] = ( short ) ( a + src.coef[src.ic] * b );
+        y[i] = ( float ) ( a + src.coef[src.ic] * b );
         src.ic++;
         if ( src.ic >= src.totcoef )
             src.ic = 0;
@@ -131,7 +131,7 @@ Csrc::src_bfilter_mono_case2 ( unsigned char x[], short y[] )
 
 /*====================================================================*/
 int
-Csrc::src_bfilter_mono_case3 ( unsigned char x[], short y[] )
+Csrc::src_bfilter_mono_case3 ( unsigned char x[], float y[] )
 {
     int i, j, k;
     int t;
@@ -152,7 +152,7 @@ Csrc::src_bfilter_mono_case3 ( unsigned char x[], short y[] )
             t = 32767;
         else if ( t < -32767 )
             t = -32767;
-        y[i] = ( short ) ( t );
+        y[i] = ( float ) ( t );
         if ( src.ic >= src.totcoef )
             src.ic = 0;
         k += src.k;
@@ -200,7 +200,7 @@ Csrc::stage1b_mono ( unsigned char x[] )
 
 /*====================================================================*/
 int
-Csrc::src_bfilter_mono_case4 ( unsigned char x[], short y[] )
+Csrc::src_bfilter_mono_case4 ( unsigned char x[], float y[] )
 {
     int i, j;
     int t;
@@ -227,7 +227,7 @@ Csrc::src_bfilter_mono_case4 ( unsigned char x[], short y[] )
             t = 32767;
         else if ( t < -32767 )
             t = -32767;
-        y[i] = ( short ) ( t );
+        y[i] = ( float ) ( t );
         if ( src.ic >= src.totcoef )
             src.ic = 0;
         src.kbuf += src.k;
@@ -249,14 +249,14 @@ Csrc::src_bfilter_mono_case4 ( unsigned char x[], short y[] )
 
 /*====================================================================*/
 int
-Csrc::src_bfilter_dual_case0 ( unsigned char x[][2], short y[][2] )
+Csrc::src_bfilter_dual_case0 ( unsigned char x[][2], float y[][2] )
 {
     int i;
 
     for ( i = 0; i < 1152; i++ )
     {
-        y[i][0] = ( short ) ( ( ( ( int ) x[i][0] ) - 128 ) << 8 );
-        y[i][1] = ( short ) ( ( ( ( int ) x[i][1] ) - 128 ) << 8 );
+        y[i][0] = ( float ) ( ( ( ( int ) x[i][0] ) - 128 ) << 8 );
+        y[i][1] = ( float ) ( ( ( ( int ) x[i][1] ) - 128 ) << 8 );
     }
 
     return 2 * 1152;    // number bytes taken in
@@ -264,7 +264,7 @@ Csrc::src_bfilter_dual_case0 ( unsigned char x[][2], short y[][2] )
 
 /*====================================================================*/
 int
-Csrc::src_bfilter_dual_case1 ( unsigned char x[][2], short y[][2] )
+Csrc::src_bfilter_dual_case1 ( unsigned char x[][2], float y[][2] )
 {
     int i, k;
     int a0, a1, b;
@@ -277,18 +277,18 @@ Csrc::src_bfilter_dual_case1 ( unsigned char x[][2], short y[][2] )
     for ( i = 0; i < 576; i += 2, k += 4 )
     {
         b = ( ( ( ( int ) x[i + 1][0] ) - 128 ) << 8 );
-        y[k][0] = ( short ) ( a0 );
-        y[k + 1][0] = ( short ) ( ( a0 + b ) >> 1 );
+        y[k][0] = ( float ) ( a0 );
+        y[k + 1][0] = ( float ) ( ( a0 + b ) >> 1 );
         a0 = ( ( ( ( int ) x[i + 2][0] ) - 128 ) << 8 );
-        y[k + 2][0] = ( short ) ( b );
-        y[k + 3][0] = ( short ) ( ( a0 + b ) >> 1 );
+        y[k + 2][0] = ( float ) ( b );
+        y[k + 3][0] = ( float ) ( ( a0 + b ) >> 1 );
 
         b = ( ( ( ( int ) x[i + 1][1] ) - 128 ) << 8 );
-        y[k][1] = ( short ) ( a1 );
-        y[k + 1][1] = ( short ) ( ( a1 + b ) >> 1 );
+        y[k][1] = ( float ) ( a1 );
+        y[k + 1][1] = ( float ) ( ( a1 + b ) >> 1 );
         a1 = ( ( ( ( int ) x[i + 2][1] ) - 128 ) << 8 );
-        y[k + 2][1] = ( short ) ( b );
-        y[k + 3][1] = ( short ) ( ( a1 + b ) >> 1 );
+        y[k + 2][1] = ( float ) ( b );
+        y[k + 3][1] = ( float ) ( ( a1 + b ) >> 1 );
     }
 
     return 2 * 576;     // number bytes taken in
@@ -296,7 +296,7 @@ Csrc::src_bfilter_dual_case1 ( unsigned char x[][2], short y[][2] )
 
 /*====================================================================*/
 int
-Csrc::src_bfilter_dual_case2 ( unsigned char x[][2], short y[][2] )
+Csrc::src_bfilter_dual_case2 ( unsigned char x[][2], float y[][2] )
 {
     int i, k;
     int a0, b0, a1, b1;
@@ -310,8 +310,8 @@ Csrc::src_bfilter_dual_case2 ( unsigned char x[][2], short y[][2] )
     b1 = ( ( ( ( int ) x[0 + 1][1] ) - 128 ) << 8 ) - a1;
     for ( i = 0; i < 1152; i++ )
     {
-        y[i][0] = ( short ) ( a0 + src.coef[src.ic] * b0 );
-        y[i][1] = ( short ) ( a1 + src.coef[src.ic] * b1 );
+        y[i][0] = ( float ) ( a0 + src.coef[src.ic] * b0 );
+        y[i][1] = ( float ) ( a1 + src.coef[src.ic] * b1 );
         src.ic++;
         if ( src.ic >= src.totcoef )
             src.ic = 0;
@@ -332,7 +332,7 @@ Csrc::src_bfilter_dual_case2 ( unsigned char x[][2], short y[][2] )
 
 /*====================================================================*/
 int
-Csrc::src_bfilter_dual_case3 ( unsigned char x[][2], short y[][2] )
+Csrc::src_bfilter_dual_case3 ( unsigned char x[][2], float y[][2] )
 {
     int i, j, k;
     int tu, tv;
@@ -363,8 +363,8 @@ Csrc::src_bfilter_dual_case3 ( unsigned char x[][2], short y[][2] )
             tv = 32767;
         else if ( tv < -32767 )
             tv = -32767;
-        y[i][0] = ( short ) ( tu );
-        y[i][1] = ( short ) ( tv );
+        y[i][0] = ( float ) ( tu );
+        y[i][1] = ( float ) ( tv );
         if ( src.ic >= src.totcoef )
             src.ic = 0;
         k += src.k;
@@ -423,7 +423,7 @@ Csrc::stage1b_dual ( unsigned char x[][2] )
 
 /*====================================================================*/
 int
-Csrc::src_bfilter_dual_case4 ( unsigned char x[][2], short y[][2] )
+Csrc::src_bfilter_dual_case4 ( unsigned char x[][2], float y[][2] )
 {
     int i, j;
     int tu, tv;
@@ -458,8 +458,8 @@ Csrc::src_bfilter_dual_case4 ( unsigned char x[][2], short y[][2] )
             tv = 32767;
         else if ( tv < -32767 )
             tv = -32767;
-        y[i][0] = ( short ) ( tu );
-        y[i][1] = ( short ) ( tv );
+        y[i][0] = ( float ) ( tu );
+        y[i][1] = ( float ) ( tv );
         if ( src.ic >= src.totcoef )
             src.ic = 0;
         src.kbuf += src.k;
@@ -483,14 +483,14 @@ Csrc::src_bfilter_dual_case4 ( unsigned char x[][2], short y[][2] )
 
 /*====================================================================*/
 int
-Csrc::src_bfilter_to_mono_case0 ( unsigned char x[][2], short y[] )
+Csrc::src_bfilter_to_mono_case0 ( unsigned char x[][2], float y[] )
 {
     int i;
 
     for ( i = 0; i < 1152; i++ )
     {
         y[i] =
-            ( short ) ( ( ( ( int ) x[i][0] + ( int ) x[i][1] ) -
+            ( float ) ( ( ( ( int ) x[i][0] + ( int ) x[i][1] ) -
                           256 ) << 7 );
     }
 
@@ -499,7 +499,7 @@ Csrc::src_bfilter_to_mono_case0 ( unsigned char x[][2], short y[] )
 
 /*====================================================================*/
 int
-Csrc::src_bfilter_to_mono_case1 ( unsigned char x[][2], short y[] )
+Csrc::src_bfilter_to_mono_case1 ( unsigned char x[][2], float y[] )
 {
     int i, k;
     int a, b;
@@ -511,11 +511,11 @@ Csrc::src_bfilter_to_mono_case1 ( unsigned char x[][2], short y[] )
     for ( i = 0; i < 576; i += 2, k += 4 )
     {
         b = ( ( ( int ) x[i + 1][0] + ( int ) x[i + 1][1] ) - 256 );
-        y[k] = ( short ) ( a << 7 );
-        y[k + 1] = ( short ) ( ( a + b ) << 6 );
+        y[k] = ( float ) ( a << 7 );
+        y[k + 1] = ( float ) ( ( a + b ) << 6 );
         a = ( ( ( int ) x[i + 2][0] + ( int ) x[i + 2][1] ) - 256 );
-        y[k + 2] = ( short ) ( b << 7 );
-        y[k + 3] = ( short ) ( ( a + b ) << 6 );
+        y[k + 2] = ( float ) ( b << 7 );
+        y[k + 3] = ( float ) ( ( a + b ) << 6 );
 
     }
 
@@ -524,7 +524,7 @@ Csrc::src_bfilter_to_mono_case1 ( unsigned char x[][2], short y[] )
 
 /*====================================================================*/
 int
-Csrc::src_bfilter_to_mono_case2 ( unsigned char x[][2], short y[] )
+Csrc::src_bfilter_to_mono_case2 ( unsigned char x[][2], float y[] )
 {
     int i, k;
     int a, b;
@@ -536,7 +536,7 @@ Csrc::src_bfilter_to_mono_case2 ( unsigned char x[][2], short y[] )
     b = ( ( ( ( int ) x[0 + 1][0] + ( int ) x[0 + 1][1] ) - 256 ) << 7 ) - a;
     for ( i = 0; i < 1152; i++ )
     {
-        y[i] = ( short ) ( a + src.coef[src.ic] * b );
+        y[i] = ( float ) ( a + src.coef[src.ic] * b );
         src.ic++;
         if ( src.ic >= src.totcoef )
             src.ic = 0;
@@ -556,7 +556,7 @@ Csrc::src_bfilter_to_mono_case2 ( unsigned char x[][2], short y[] )
 
 /*====================================================================*/
 int
-Csrc::src_bfilter_to_mono_case3 ( unsigned char x[][2], short y[] )
+Csrc::src_bfilter_to_mono_case3 ( unsigned char x[][2], float y[] )
 {
     int i, j, k;
     int t;
@@ -578,7 +578,7 @@ Csrc::src_bfilter_to_mono_case3 ( unsigned char x[][2], short y[] )
             t = 32767;
         else if ( t < -32767 )
             t = -32767;
-        y[i] = ( short ) ( t );
+        y[i] = ( float ) ( t );
         if ( src.ic >= src.totcoef )
             src.ic = 0;
         k += src.k;
@@ -626,7 +626,7 @@ Csrc::stage1b_to_mono ( unsigned char x[][2] )
 
 /*====================================================================*/
 int
-Csrc::src_bfilter_to_mono_case4 ( unsigned char x[][2], short y[] )
+Csrc::src_bfilter_to_mono_case4 ( unsigned char x[][2], float y[] )
 {
     int i, j;
     int t;
@@ -653,7 +653,7 @@ Csrc::src_bfilter_to_mono_case4 ( unsigned char x[][2], short y[] )
             t = 32767;
         else if ( t < -32767 )
             t = -32767;
-        y[i] = ( short ) ( t );
+        y[i] = ( float ) ( t );
         if ( src.ic >= src.totcoef )
             src.ic = 0;
         src.kbuf += src.k;

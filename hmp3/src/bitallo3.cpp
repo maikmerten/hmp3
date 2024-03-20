@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: $Id: bitallo3.cpp,v 1.2 2005/08/09 20:43:41 karll Exp $ 
+ * Source last modified: 2024-03-14, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -901,7 +901,7 @@ CBitAllo3::startup ( SIG_MASK sm[][36], unsigned char signx[][576] )
 void
 CBitAllo3::startup_ms2 ( SIG_MASK sm[][36], unsigned char signx[][576] )
 {
-    int i, n, ch;
+    int i, n=0, ch;
     int mnr;
     float *x, *y;
     unsigned char *s;

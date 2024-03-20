@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: $Id: pcmhpm.h,v 1.1 2005/07/13 17:22:24 rggammon Exp $ 
+ * Source last modified: 2024-03-18, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -47,17 +47,18 @@ extern "C" {
         int channels;
         int bits;
         int rate;       /* sample rate e.g. 44100 */
-        int type;       /* set to 0 known linear pcm (not u-law etc) */
+        int type;       /* 1: linear pcm (integer), 3: pcm (float), anything else unsupported (u-law etc) */
+        int bigendian;
     }
     F_INFO;
 
-    int pcmhead_mem ( unsigned char *buf, int nbuf, F_INFO * f_info );
+    int pcmhead_file ( FILE *handle, unsigned char *buf, int nbuf, F_INFO * f_info, unsigned int *data_size );
 // parse wave header in endian independent way
 // fill in F_INFO struct
 // return offset to start of audio data, returns 0 for fail
 
   // big-little endian conversion
-    int cvt_to_pcm_init ( int bits ) ;
+    int cvt_to_pcm_init ( int nch, int bits, int is_source_bigendian ) ;
     int cvt_to_pcm ( unsigned char *pcm, int bytes_in ) ;
 
 #ifdef __cplusplus

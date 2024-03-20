@@ -1,5 +1,5 @@
 ; ***** BEGIN LICENSE BLOCK *****  
-; Source last modified: $Id: filter2.asm,v 1.1 2005/07/13 17:22:23 rggammon Exp $ 
+; Source last modified: 2024-03-16, Case
 ;   
 ; Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
 ;       
@@ -164,7 +164,7 @@ ENDM
 ;=============================================
 _filter2 proc public
 ;;
-;;void filter2(short pcm[], float *buf1, float *buf2,
+;;void filter2(float pcm[], float *buf1, float *buf2,
 ;;             FILTER2_CONTROL *fc2)
 ;;
 ;;typedef struct {
@@ -223,11 +223,11 @@ D_50:
 	mov       ecx, 1152
 D_100:
 	sub       edi, 4
-	fild      word ptr [esi]      ;; left
+	fld       dword ptr [esi]      ;; left
 	fstp      dword ptr [edi]
-	fild      word ptr [esi+2]    ;; right
+	fld       dword ptr [esi+4]    ;; right
 	fstp      dword ptr [edi+ebx]
-	add       esi, 2*2
+	add       esi, 4*2
 	dec       ecx
 	jne       d_100
 ;---------------------------------------
@@ -252,11 +252,11 @@ filter_mono0::
 	mov       ecx, 1152/2
 a_100:
 	sub       edi, 2*4
-	fild      word ptr [esi]
+	fld		  dword ptr [esi]
 	fstp      dword ptr [edi+4]
-	fild      word ptr [esi+2]
+	fld       dword ptr [esi+4]
 	fstp      dword ptr [edi]
-	add       esi, 2*2
+	add       esi, 4*2
 	dec       ecx
 	jne       a_100
 	;;
@@ -275,9 +275,9 @@ filter_mono_dc::
 	fld       alpha
 	fld       dc
 b_100:
-	fild      word ptr [esi]
+	fld       dword ptr [esi]
 	sub       edi, 4
-	add       esi, 2
+	add       esi, 4
 	fsub      st, st(1)
 	fst       dword ptr [edi]
 	fmul      st, st(2)
@@ -322,9 +322,9 @@ E_50:
 	fld       dc2
 E_100:
 	sub       edi, 4
-	fild      word ptr [esi]        ;; left
+	fld       dword ptr [esi]    ;; left
 	fsub      st, st(2)
-	fild      word ptr [esi+2]      ;; right
+	fld       dword ptr [esi+4]  ;; right
 	fsub      st, st(2)
 	fxch
 	fst       dword ptr [edi]    ;; left
@@ -335,7 +335,7 @@ E_100:
 	fxch
 	faddp     st(3), st
 	faddp     st(1), st
-	lea       esi, [esi+2*2]
+	lea       esi, [esi+4*2]
 	dec       ecx
 	jne       e_100
 	fstp      dc2        ;; save dc for next time

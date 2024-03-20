@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: $Id: srcc.h,v 1.1 2005/07/13 17:22:24 rggammon Exp $ 
+ * Source last modified: 2024-03-16, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -92,62 +92,64 @@ class Csrc
     {
     }
 
-    int sr_convert_init ( int source, int channels, int bits,
+    int sr_convert_init ( int source, int channels, int bits, int is_float,
                           int target, int target_channels,
                           int *encode_cutoff_freq );
-    IN_OUT sr_convert ( unsigned char xin[], short yout[] );
+    IN_OUT sr_convert ( unsigned char xin[], float yout[] );
 
 //-data------------------------------------------------
   private:
     SRC_STRUCT src;
 
-    int src_bytes_out;
+    unsigned int src_bytes_out;
     int src_filter;
+    int m_channels, m_bits, m_is_float;
+    float itof_buf[1152 * 2];
 
 //-functions------------------------------------------------
     int gen_src_filter ( int source0, int target );
     int gen_f1 ( float a[], int ntaps, int ncutoff, int nfilters, int m );
 
-    int src_filter_mono_case0 ( short x[], short y[] );
-    int src_filter_mono_case1 ( short x[], short y[] );
-    int src_filter_mono_case2 ( short x[], short y[] );
-    int src_filter_mono_case3 ( short x[], short y[] );
-    int src_filter_mono_case4 ( short x[], short y[] );
+    int src_filter_mono_case0 ( float x[], float y[] );
+    int src_filter_mono_case1 ( float x[], float y[] );
+    int src_filter_mono_case2 ( float x[], float y[] );
+    int src_filter_mono_case3 ( float x[], float y[] );
+    int src_filter_mono_case4 ( float x[], float y[] );
 
-    int src_filter_dual_case0 ( short x[], short y[] );
-    int src_filter_dual_case1 ( short x[][2], short y[][2] );
-    int src_filter_dual_case2 ( short x[][2], short y[][2] );
-    int src_filter_dual_case3 ( short x[][2], short y[][2] );
-    int src_filter_dual_case4 ( short x[][2], short y[][2] );
+    int src_filter_dual_case0 ( float x[], float y[] );
+    int src_filter_dual_case1 ( float x[][2], float y[][2] );
+    int src_filter_dual_case2 ( float x[][2], float y[][2] );
+    int src_filter_dual_case3 ( float x[][2], float y[][2] );
+    int src_filter_dual_case4 ( float x[][2], float y[][2] );
 
-    int src_filter_to_mono_case0 ( short x[][2], short y[] );
-    int src_filter_to_mono_case1 ( short x[][2], short y[] );
-    int src_filter_to_mono_case2 ( short x[][2], short y[] );
-    int src_filter_to_mono_case3 ( short x[][2], short y[] );
-    int src_filter_to_mono_case4 ( short x[][2], short y[] );
+    int src_filter_to_mono_case0 ( float x[][2], float y[] );
+    int src_filter_to_mono_case1 ( float x[][2], float y[] );
+    int src_filter_to_mono_case2 ( float x[][2], float y[] );
+    int src_filter_to_mono_case3 ( float x[][2], float y[] );
+    int src_filter_to_mono_case4 ( float x[][2], float y[] );
 
 // 8 bit input
-    int src_bfilter_mono_case0 ( unsigned char x[], short y[] );
-    int src_bfilter_mono_case1 ( unsigned char x[], short y[] );
-    int src_bfilter_mono_case2 ( unsigned char x[], short y[] );
-    int src_bfilter_mono_case3 ( unsigned char x[], short y[] );
-    int src_bfilter_mono_case4 ( unsigned char x[], short y[] );
+    int src_bfilter_mono_case0 ( unsigned char x[], float y[] );
+    int src_bfilter_mono_case1 ( unsigned char x[], float y[] );
+    int src_bfilter_mono_case2 ( unsigned char x[], float y[] );
+    int src_bfilter_mono_case3 ( unsigned char x[], float y[] );
+    int src_bfilter_mono_case4 ( unsigned char x[], float y[] );
 
-    int src_bfilter_dual_case0 ( unsigned char x[][2], short y[][2] );
-    int src_bfilter_dual_case1 ( unsigned char x[][2], short y[][2] );
-    int src_bfilter_dual_case2 ( unsigned char x[][2], short y[][2] );
-    int src_bfilter_dual_case3 ( unsigned char x[][2], short y[][2] );
-    int src_bfilter_dual_case4 ( unsigned char x[][2], short y[][2] );
+    int src_bfilter_dual_case0 ( unsigned char x[][2], float y[][2] );
+    int src_bfilter_dual_case1 ( unsigned char x[][2], float y[][2] );
+    int src_bfilter_dual_case2 ( unsigned char x[][2], float y[][2] );
+    int src_bfilter_dual_case3 ( unsigned char x[][2], float y[][2] );
+    int src_bfilter_dual_case4 ( unsigned char x[][2], float y[][2] );
 
-    int src_bfilter_to_mono_case0 ( unsigned char x[][2], short y[] );
-    int src_bfilter_to_mono_case1 ( unsigned char x[][2], short y[] );
-    int src_bfilter_to_mono_case2 ( unsigned char x[][2], short y[] );
-    int src_bfilter_to_mono_case3 ( unsigned char x[][2], short y[] );
-    int src_bfilter_to_mono_case4 ( unsigned char x[][2], short y[] );
+    int src_bfilter_to_mono_case0 ( unsigned char x[][2], float y[] );
+    int src_bfilter_to_mono_case1 ( unsigned char x[][2], float y[] );
+    int src_bfilter_to_mono_case2 ( unsigned char x[][2], float y[] );
+    int src_bfilter_to_mono_case3 ( unsigned char x[][2], float y[] );
+    int src_bfilter_to_mono_case4 ( unsigned char x[][2], float y[] );
 
-    int stage1_mono ( short x[] );
-    int stage1_dual ( short x[][2] );
-    int stage1_to_mono ( short x[][2] );
+    int stage1_mono ( float x[] );
+    int stage1_dual ( float x[][2] );
+    int stage1_to_mono ( float x[][2] );
 
     int stage1b_mono ( unsigned char x[] );
     int stage1b_dual ( unsigned char x[][2] );

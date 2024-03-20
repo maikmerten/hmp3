@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022-12-19, Maik Merten
+ * Source last modified: 2024-03-20, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -255,7 +255,7 @@ XingHeader ( int samprate, int h_mode, int cr_bit, int original_bit,
              int head_flags, int frames, int bs_bytes,
              int vbr_scale,
              unsigned char *toc, unsigned char *buf, unsigned char *buf20,
-             unsigned char *buf20B, int nBitRateIndex )
+             unsigned char *buf20B, int nBitRate )
 {
     int i, k;
     int h_id;
@@ -265,6 +265,7 @@ XingHeader ( int samprate, int h_mode, int cr_bit, int original_bit,
     int bytes_required;
     int frame_bytes;
     int tmp;
+    int nBitRateIndex;
     unsigned char *buf0;
 
     //------------ clear toc table
@@ -308,6 +309,8 @@ XingHeader ( int samprate, int h_mode, int cr_bit, int original_bit,
         if ( h_mode == 3 )
             side_bytes = 9;
     }
+
+    nBitRateIndex = XingHeaderBitrateIndex ( h_id, nBitRate );
 
     // if CBR turn off TOC for low bitrates (it may be too large)
     if ( vbr_scale == -1 && br_table[h_id][nBitRateIndex] < 64 )
@@ -474,7 +477,7 @@ XingHeaderUpdate ( int frames, int bs_bytes,
                    unsigned char *buf20, unsigned char *buf20B)
 {
     // call new version with LAME info tag support, with default values for new parameters
-    return XingHeaderUpdateInfo(frames, bs_bytes, vbr_scale, toc, buf, buf20, buf20B, 0, 0, 0, 0, 0);
+    return XingHeaderUpdateInfo(frames, bs_bytes, vbr_scale, toc, buf, buf20, buf20B, 0, 0, 0, 0, 0, 0);
 }
 
 /*-------------------------------------------------------------*/
@@ -485,7 +488,7 @@ XingHeaderUpdateInfo ( int frames, int bs_bytes,
                    unsigned char *buf20, unsigned char *buf20B ,
                    unsigned long samples_audio,
                    unsigned int bytes_mp3, unsigned int lowpass,
-                   unsigned int in_samplerate, unsigned short musiccrc)
+                   unsigned int in_samplerate, unsigned int out_samplerate, unsigned short musiccrc)
                    
 {
     int i, head_flags;
@@ -498,6 +501,20 @@ XingHeaderUpdateInfo ( int frames, int bs_bytes,
 
     h_id = ( buf[1] >> 3 ) & 1;
     h_mode = ( buf[3] >> 6 ) & 3;
+
+    if (in_samplerate == 0 || out_samplerate == 0)
+        in_samplerate = out_samplerate = 1;
+
+    // encoder delays
+    unsigned long samples_audio_r = (unsigned long)((double)samples_audio * ((double)out_samplerate / (double)in_samplerate) + 0.5);
+    int pad_start = 1680;
+    unsigned long samples_mp3 = (unsigned long)frames * (h_id == 1 ? 1152 : 576);
+    if (samples_mp3 - samples_audio_r - pad_start >= 4096) { // padding info won't fit in the available space, adjust frame count
+        frames = (int)((samples_audio_r + pad_start + 1152) / (h_id == 1 ? 1152 : 576));
+        samples_mp3 = frames * (h_id == 1 ? 1152 : 576);
+    }
+    long pad_total = samples_mp3 - samples_audio_r;
+    int pad_end = pad_total - pad_start;
 
     if ( h_id )
     {   // mpeg1
@@ -624,11 +641,6 @@ XingHeaderUpdateInfo ( int frames, int bs_bytes,
         buf[0] = 0; // (unknown)
         buf++;
         
-        // encoder delays
-        long samples_mp3 = frames * (h_id == 1 ? 1152 : 576);
-        long pad_total = samples_mp3 - samples_audio;
-        int pad_start = 1680;
-        int pad_end = pad_total - pad_start;
         buf[0] = (pad_start >> 4) & 0xFF;
         buf[1] = ((pad_start << 4) & 0xF0 ) | ((pad_end >> 8) & 0x0F);
         buf[2] = (pad_end & 0xFF);

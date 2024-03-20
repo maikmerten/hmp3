@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: $Id: mp3enc.h,v 1.2 2005/08/09 20:43:45 karll Exp $ 
+ * Source last modified: 2024-03-17, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -91,11 +91,11 @@ class CMp3Enc
     // Input (pcm[]) is 1152 pcm samples.  Oldest sample at 
     // lowest memory address.  Two channel modes are interleaved 
     // left/right for total of 2*1152 values.
-    // pcm = short (not necessarly 16 bit).   
+    // pcm = float (not necessarly 16 bit).
     // Output (bs_out) is encoded frame.  Returns 
     // bytes removed from pcm, number of bytes encoded.
     // Output bytes returned may be zero, may be more than one frame.
-    IN_OUT L3_audio_encode ( short *pcm, unsigned char *bs_out );
+    IN_OUT L3_audio_encode ( float *pcm, unsigned char *bs_out );
 
     // encode reformatted frame (self contained frame) 
     // for streaming network packets
@@ -107,7 +107,7 @@ class CMp3Enc
     // nbytes_out[0] and nbytes_out[1].  Second frame (for mpeg2) begins
     // at packet+nbytes_out[0].  Total bytes written to packet is 
     // nbytes_out[0]+nbytes_out[1].
-    IN_OUT L3_audio_encode_Packet ( short *pcm,
+    IN_OUT L3_audio_encode_Packet ( float *pcm,
                                     unsigned char *bs_out,
                                     unsigned char *packet,
                                     int nbytes_out[2] );
@@ -115,7 +115,7 @@ class CMp3Enc
     //============================
     // encode with sample rate type conversion
     // 16 bit/ 8 bit input
-    int MP3_audio_encode_init ( E_CONTROL * ec_arg, int input_type,     // 0=16 bit linear,1=8 bitlinear
+    int MP3_audio_encode_init ( E_CONTROL * ec_arg, int source_bits, int source_is_float,
                                 int mpeg_select, int mono_convert );
 
     // standard encode
@@ -316,24 +316,24 @@ class CMp3Enc
     void gen_vbr_table ( int h_mode, int samplerate, int max_tot_bitrate );
 
 /*-------------- encode function ----------------*/
-    IN_OUT L3_audio_encode_MPEG1 ( short *pcm, unsigned char *bs_out );
-    IN_OUT L3_audio_encode_vbr_MPEG1 ( short *pcm, unsigned char *bs_out );
-    IN_OUT L3_audio_encode_MPEG2 ( short *pcm, unsigned char *bs_out );
-    IN_OUT L3_audio_encode_vbr_MPEG2 ( short *pcm, unsigned char *bs_out );
+    IN_OUT L3_audio_encode_MPEG1 ( float *pcm, unsigned char *bs_out );
+    IN_OUT L3_audio_encode_vbr_MPEG1 ( float *pcm, unsigned char *bs_out );
+    IN_OUT L3_audio_encode_MPEG2 ( float *pcm, unsigned char *bs_out );
+    IN_OUT L3_audio_encode_vbr_MPEG2 (float *pcm, unsigned char *bs_out );
 
-    IN_OUT L3_audio_encode_MPEG1Packet ( short *pcm,
+    IN_OUT L3_audio_encode_MPEG1Packet (float *pcm,
                                          unsigned char *bs_out,
                                          unsigned char *packet,
                                          int nbytes_out[2] );
-    IN_OUT L3_audio_encode_vbr_MPEG1Packet ( short *pcm,
+    IN_OUT L3_audio_encode_vbr_MPEG1Packet (float *pcm,
                                              unsigned char *bs_out,
                                              unsigned char *packet,
                                              int nbytes_out[2] );
-    IN_OUT L3_audio_encode_MPEG2Packet ( short *pcm,
+    IN_OUT L3_audio_encode_MPEG2Packet (float *pcm,
                                          unsigned char *bs_out,
                                          unsigned char *packet,
                                          int nbytes_out[2] );
-    IN_OUT L3_audio_encode_vbr_MPEG2Packet ( short *pcm,
+    IN_OUT L3_audio_encode_vbr_MPEG2Packet (float *pcm,
                                              unsigned char *bs_out,
                                              unsigned char *packet,
                                              int nbytes_out[2] );
@@ -376,7 +376,7 @@ class CMp3Enc
 //------------------- MP3_audio_encode (includes rate conversion)
     int src_encode;
     Csrc *src;
-    short *src_pcmbuf;
+    float *src_pcmbuf;
 
 };
 
