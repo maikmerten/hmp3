@@ -274,6 +274,7 @@ main ( int argc, char *argv_real[] )
 
 	fprintf (stderr, "\n hmp3 MPEG Layer III audio encoder %s"
 		"\n Utilizing the Helix MP3 encoder, Copyright 1995-2005 RealNetworks, Inc."
+		"\n\n With contributions from HydrogenAudio members."
 		"\n"
 		"\n Usage:  hmp3 <input> <output> [options]"
 		"\n          <input> and/or <output> can be \"-\", which means stdin/stdout."
