@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>mp3enc</ProjectName>
+    <ProjectGuid>{12BE1F5C-DD4C-445B-AC0E-E12B8F98B1EF}</ProjectGuid>
+    <SccProjectName />
+    <SccLocalPath />
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.25431.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>.\Debug\</OutDir>
+    <IntDir>.\Debug\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>.\Release\</OutDir>
+    <IntDir>.\Release\</IntDir>
+    <TargetName>hmp3</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.;.\src\pub;.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeaderOutputFile>.\Debug/mp3enc.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
+      <ObjectFileName>.\Debug/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Debug/</ProgramDataBaseFileName>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>false</OmitFramePointers>
+      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
+      <AdditionalIncludeDirectories>.;.\src\pub;.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_M_IX86;IEEE_FLOAT;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>.\Release/mp3enc.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
+      <ObjectFileName>.\Release/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Release/</ProgramDataBaseFileName>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <CompileAs>Default</CompileAs>
+      <FloatingPointModel>Fast</FloatingPointModel>
+    </ClCompile>
+    <Link>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\amodini2.c" />
+    <ClCompile Include="src\bitallo.cpp" />
+    <ClCompile Include="src\bitallo1.cpp" />
+    <ClCompile Include="src\bitallo3.cpp" />
+    <ClCompile Include="src\bitalloc.cpp" />
+    <ClCompile Include="src\bitallos.cpp" />
+    <ClCompile Include="src\bitallosc.cpp" />
+    <ClCompile Include="src\cnts.c" />
+    <ClCompile Include="src\detect.c" />
+    <ClCompile Include="src\emap.c" />
+    <ClCompile Include="src\l3init.c" />
+    <ClCompile Include="src\l3pack.c" />
+    <ClCompile Include="src\mp3enc.cpp" />
+    <ClCompile Include="src\pcmhpm.c" />
+    <ClCompile Include="src\setup.c" />
+    <ClCompile Include="src\spdsmr.c" />
+    <ClCompile Include="src\srcc.cpp" />
+    <ClCompile Include="src\srccf.cpp" />
+    <ClCompile Include="src\srccfb.cpp" />
+    <ClCompile Include="src\test\tomp3.cpp" />
+    <ClCompile Include="src\xhead.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="src\platform\win\i386\cnt.asm">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="src\platform\win\i386\emdct.asm">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="src\platform\win\i386\filter2.asm">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="src\platform\win\i386\hwin.asm">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="src\platform\win\i386\l3math.asm">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="src\platform\win\i386\pow34.asm">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="src\platform\win\i386\sbt.asm">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="src\platform\win\i386\xhwin.asm">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="src\platform\win\i386\xsbt.asm">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml.exe /c /Cx /coff /Fo $(IntDir) "%(FullPath)"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\cnttab.h" />
+    <ClInclude Include="src\htable.h" />
+    <ClInclude Include="src\hxtypes.h" />
+    <ClInclude Include="src\mp3low.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
