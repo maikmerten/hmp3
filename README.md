@@ -1,6 +1,6 @@
-# hmp3 - Helix MP3 Encoder, with code maintenance
+# hmp3 - Helix MP3 Encoder, with some additions
 
-This repository contains a version of the Helix MP3 Encoder with some maintenance work applied to build on modern systems. This targets mostly Linux-based machines (tested on x86-64 and ARM), but untested project files for Windows are still included.
+This repository contains a version of the Helix MP3 Encoder with some maintenance work applied to build on modern systems. This targets mostly Linux-based machines (tested on x86-64 and ARM), but project files for Visual Studio 2015 are also included.
 
 ## On the license of the Helix MP3 Encoder
 
