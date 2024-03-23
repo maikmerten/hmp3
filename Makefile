@@ -34,7 +34,7 @@ CFLAGS_REL_WIN64=-march=x86-64 $(CFLAGS_COMMON)
 
 CFLAGS_DEB=-g -O0 -DDEBUG -c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT
 CFLAGS_PRF=$(CFLAGS_REL) -g -pg
-LFLAGS=-lm -lstdc++ -static
+LFLAGS=-lm -lstdc++
 
 AR=ar
 
