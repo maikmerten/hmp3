@@ -35,6 +35,7 @@ CFLAGS_REL_WIN64=-march=x86-64 $(CFLAGS_COMMON)
 CFLAGS_DEB=-g -O0 -DDEBUG -c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT
 CFLAGS_PRF=$(CFLAGS_REL) -g -pg
 LFLAGS=-lm -lstdc++
+LFLAGS_MINGW=-lstdc++ -static
 
 AR=ar
 
@@ -63,10 +64,12 @@ profile: prep $(DIR_PRF)/$(EXE_PRF)
 
 release-win32: CC=$(CC_WIN32)
 release-win32: CFLAGS_REL=$(CFLAGS_REL_WIN32)
+release-win32: LFLAGS=$(LFLAGS_MINGW)
 release-win32: clean all
 
 release-win64: CC=$(CC_WIN64)
 release-win64: CFLAGS_REL=$(CFLAGS_REL_WIN64)
+release-win64: LFLAGS=$(LFLAGS_MINGW)
 release-win64: clean all
 
 
