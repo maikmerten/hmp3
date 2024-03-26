@@ -27,7 +27,7 @@ CC=gcc
 CC_WIN32=i686-w64-mingw32-gcc
 CC_WIN64=x86_64-w64-mingw32-gcc
 
-CFLAGS_COMMON=-O3 -fno-math-errno -fno-trapping-math -c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT
+CFLAGS_COMMON=-O3 -c -I$(SRC_PREFIX)/pub -DIEEE_FLOAT
 CFLAGS_REL=$(CFLAGS_COMMON)
 CFLAGS_REL_WIN32=-march=pentium3 -mtune=pentium3 -mfpmath=sse $(CFLAGS_COMMON)
 CFLAGS_REL_WIN64=-march=x86-64 $(CFLAGS_COMMON)
