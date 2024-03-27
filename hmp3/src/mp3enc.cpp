@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-03-17, Case
+ * Source last modified: 2024-03-27, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -185,8 +185,8 @@ CMp3Enc::CMp3Enc (  ):
     memset ( w_spd, 0, sizeof ( w_spd ) );      // spd
 
     memset ( nsumShort, 0, sizeof ( nsumShort ) );
-    memset ( spd_cntlShort, 0, sizeof ( spd_cntl ) );   // spd, spread fnc
-    memset ( w_spdShort, 0, sizeof ( w_spd ) ); // spd
+    memset ( spd_cntlShort, 0, sizeof ( spd_cntlShort ) );   // spd, spread fnc
+    memset ( w_spdShort, 0, sizeof ( w_spdShort ) ); // spd
 //----------------
 
 // polyphase done one granule ahead, sbt for next time done after hybrid
