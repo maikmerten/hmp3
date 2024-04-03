@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022-03-20, Case
+ * Source last modified: 2024-04-03, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -35,7 +35,7 @@
  *   
  * ***** END LICENSE BLOCK ***** */
 
-const char versionstring[24] = "5.2.1, 2024-03-20";
+const char versionstring[24] = "5.2.2, 2024-04-03";
 
 #include <stdlib.h>
 #include <stdio.h>
