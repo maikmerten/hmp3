@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-03-27, Maik Merten
+ * Source last modified: 2024-04-10, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -3479,7 +3479,7 @@ CMp3Enc::L3_audio_encode_get_bitrate2_float (  )
 }
 
 /*--------------------------------------------------------------------*/
-int
+unsigned int
 CMp3Enc::L3_audio_encode_get_frames (  )
 {
     return tot_frames_out;      // actual number frame written to output

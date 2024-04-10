@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-03-18, Case
+ * Source last modified: 2024-04-10, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -38,6 +38,8 @@
 #ifndef _PCMHPM_H_
 #define _PCMHPM_H_
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -52,7 +54,7 @@ extern "C" {
     }
     F_INFO;
 
-    int pcmhead_file ( FILE *handle, unsigned char *buf, int nbuf, F_INFO * f_info, unsigned int *data_size );
+    int pcmhead_file ( FILE *handle, unsigned char *buf, int nbuf, F_INFO * f_info, uint64_t *data_size );
 // parse wave header in endian independent way
 // fill in F_INFO struct
 // return offset to start of audio data, returns 0 for fail
