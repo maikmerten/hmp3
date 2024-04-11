@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-04-10, Case
+ * Source last modified: 2024-04-11, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -398,7 +398,7 @@ Have format data at this point
         nbuf -= chunk_size;
         if ( !is_w64 ) {
             size = get_field ( chunk->size, 4, f_info->bigendian );
-            if ( size % 2 != 0 ) size++;
+            if ( size % 2 != 0 && size != 0xFFFFFFFF ) size++;
             if ( cmp ( chunk->name, "data" ) > 0 ) {
                 if ( is_rf64 && size == 0xFFFFFFFF ) {
                     size = get_field64 ( chunk_ds64->dataSize, sizeof ( chunk_ds64->dataSize ), f_info->bigendian );

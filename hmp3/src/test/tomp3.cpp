@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-04-10, Case
+ * Source last modified: 2024-04-11, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -79,7 +79,10 @@ const char versionstring[24] = "5.2.2, 2024-04-03";
 
 #define _FN(name)	L##name
 #define fn_char		wchar_t
+#define fn_off_t	__int64
 #define fn_fopen	_wfopen
+#define fn_fseek	_fseeki64
+#define fn_ftell	_ftelli64
 #define fn_strcmp	wcscmp
 
 static int wprint_console(FILE *stream, const wchar_t *text, size_t len)
@@ -156,7 +159,10 @@ int fn_fprintf(FILE *stream, const fn_char *format, ...)
 
 #define _FN(name)	name
 #define fn_char		char
+#define fn_off_t	off_t
 #define fn_fopen	fopen
+#define fn_fseek	fseeko
+#define fn_ftell	ftello
 #define fn_fprintf	fprintf
 #define fn_strcmp	strcmp
 
@@ -542,6 +548,39 @@ main ( int argc, char *argv_real[] )
 		return 0; // return normally
 }
 
+static void
+print_progress(CMp3Enc *Encode, uint64_t in_bytes, unsigned int out_bytes, int progress)
+{
+	/*
+		* progress indicator
+		*     Frames  |  Bytes In  /  Bytes Out | Progress | Current/Average Bitrate
+		*/
+	char progress_str[12] = " N/A";
+	char bytesin_str[16];
+
+	if ( in_bytes < 10000000000000ULL ) { /* we can print 13 digits max */
+		sprintf(bytesin_str, "%13" PRIu64 "", in_bytes);
+	} else {
+		double terabytes_in = (double)in_bytes / 1000000000000.0;
+		double petabytes_in = terabytes_in / 1000.0;
+		double exabytes_in = petabytes_in / 1000.0;
+		if ( exabytes_in >= 1.0 ) {
+			sprintf(bytesin_str, "%10.6f EB", exabytes_in);
+		} else if ( petabytes_in >= 1.0 ) {
+			sprintf(bytesin_str, "%10.6f PB", petabytes_in);
+		} else {
+			sprintf(bytesin_str, "%10.6f TB", terabytes_in);
+		}
+	}
+
+	if ( progress >= 0 ) sprintf ( progress_str, "%3d%%", progress );
+	fprintf (stderr, "\r  %10u  | %s / %10u |   %s   | %6.2f / %6.2f Kbps",
+		Encode->L3_audio_encode_get_frames() + 1, bytesin_str, out_bytes, progress_str,
+		Encode->L3_audio_encode_get_bitrate2_float (  ),
+		Encode->L3_audio_encode_get_bitrate_float (  ) );
+	fflush(stderr) ;
+}
+
 /*-------------------------------------------------------------*/
 unsigned int
 ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
@@ -652,8 +691,26 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 	if ( ignore_length ) indatasize = UINT64_MAX;
 	if ( indatasize == 0 )
 	{
-		fprintf(stderr, "\n INPUT FILE CONTAINS NO AUDIO");
+		fprintf ( stderr, "\n INPUT FILE CONTAINS NO AUDIO" );
 		goto abort;
+	}
+	if ( indatasize == 0xFFFFFFFF && fn_strcmp ( filename, pipe_file ) != 0 )
+	{
+		fn_off_t size = -1;
+		fn_off_t pos = fn_ftell ( handle );
+		if ( pos != -1 ) {
+			if ( fn_fseek ( handle, 0, SEEK_END ) == 0 ) {
+				size = fn_ftell ( handle );
+				if ( fn_fseek ( handle, pos, SEEK_SET ) != 0 )
+					size = -1;
+				if ( size != -1 ) size -= (pos - pcm_bufbytes); /* exclude header size */
+			}
+		}
+		if ( size < 0 || size > indatasize ) {
+			fprintf ( stderr, "\n THE INPUT FILE INDICATES MAX DATA SIZE BUT IS LARGER. THE WAV FILE IS INVALID." );
+			fprintf ( stderr, "\n USE OPTION '-IL' TO ENCODE ANYWAY." );
+			goto abort;
+		}
 	}
 	if ( (uint64_t)pcm_bufbytes > indatasize ) pcm_bufbytes = (int)indatasize; /* make sure input doesn't read beyond data section */
 
@@ -790,9 +847,9 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 	* the encoding loop
 	*/
 
-	fprintf (stderr, "\n--------------------------------------------------------------------------------------");
-	fprintf (stderr, "\n      Frames  |            Bytes In  /  Bytes Out | Progress | Current/Average Bitrate");
-	fprintf (stderr, "\n       None   |              None    /    None    |   None   | None");
+	fprintf (stderr, "\n-------------------------------------------------------------------------------");
+	fprintf (stderr, "\n      Frames  |     Bytes In  /  Bytes Out | Progress | Current/Average Bitrate");
+	fprintf (stderr, "\n       None   |       None    /    None    |   None   | None");
 
 	for ( u = 1;; u++ )
 	{
@@ -881,17 +938,10 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 
 		/*
 		 * progress indicator
-		 *     Frames  |            Bytes In  /  Bytes Out | Progress | Current/Average Bitrate
 		 */
 		if ( ( u & 127 ) == display_flag )
 		{
-			char progress_str[8] = " N/A";
-			if ( !ignore_length ) sprintf ( progress_str, "%3u%%", (unsigned int)(in_bytes * 100. / indatasize) );
-			fprintf (stderr, "\r  %10u  | %20" PRIu64 " / %10u |   %s   | %6.2f / %6.2f Kbps",
-				Encode.L3_audio_encode_get_frames() + 1, in_bytes, out_bytes, progress_str,
-				Encode.L3_audio_encode_get_bitrate2_float (  ),
-				Encode.L3_audio_encode_get_bitrate_float (  ) );
-			fflush(stderr) ;
+			print_progress ( &Encode, in_bytes, out_bytes, (!ignore_length ? (int)(in_bytes * 100. / indatasize) : -1) );
 		}
 	}
 
@@ -932,13 +982,10 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
         head_musiccrc = XingHeaderUpdateCRC(head_musiccrc, bs_buffer, bs_bufbytes);
 	}
 
-	/*     Frames  |            Bytes In  /  Bytes Out | Progress | Current/Average Bitrate */
 	/* fprintf (stderr, "\r  %10u  | %10d / %10d |   %3d%%   | %6.2f / %6.2f  Kbps", */
-	fprintf (stderr, "\r  %10u  | %20" PRIu64 " / %10u |   %3u%%   | %6.2f / %6.2f Kbps",
-		Encode.L3_audio_encode_get_frames() + 1, in_bytes, out_bytes, ( !kbhit() ? 100 : (unsigned int)(in_bytes*100. / indatasize) ),
-		Encode.L3_audio_encode_get_bitrate2_float (  ),
-		Encode.L3_audio_encode_get_bitrate_float (  ) );
-	fprintf (stderr, "\n--------------------------------------------------------------------------------------");
+	print_progress ( &Encode, in_bytes, out_bytes, ( !kbhit() ? 100 : (int)(in_bytes*100. / indatasize) ) );
+
+	fprintf (stderr, "\n-------------------------------------------------------------------------------");
 	/* fprintf (stderr, "\n Compress Ratio %3.6f%%", out_bytes*100./indatasize ); */
 	fprintf (stderr, "\n Compress Ratio ");
 	if ( !ignore_length )
