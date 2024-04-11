@@ -275,6 +275,7 @@ get_whead_mem_and_file ( FILE *handle, unsigned char *buf_in, int nbuf, F_INFO *
         size = get_field ( chunk_ds64->size, sizeof ( chunk_ds64->size ), f_info->bigendian ) + sizeof ( chunk_ds64->name ) + sizeof ( chunk_ds64->size );
         if ( size < sizeof ( CHUNKDS64 ) )
             return -1;
+        if ( size % 2 != 0 ) size++;
         buf += size;
         nbuf -= size;
     }
@@ -298,6 +299,7 @@ get_whead_mem_and_file ( FILE *handle, unsigned char *buf_in, int nbuf, F_INFO *
             if ( cmp ( chunk->name, "fmt " ) > 0 )
                 break;
             size = get_field ( chunk->size, 4, f_info->bigendian );
+            if ( size % 2 != 0 ) size++;
         } else {
             if ( memcmp ( chunk64->guid, w64_guid_fmt, sizeof ( w64_guid_fmt ) ) == 0 )
                 break;
@@ -305,7 +307,7 @@ get_whead_mem_and_file ( FILE *handle, unsigned char *buf_in, int nbuf, F_INFO *
             if ( size < chunk_size ) /* From specs: the chunk size fields directly following the chunk-GUID and preceeding the chunk body, include the size of the chunk-GUID and the chunk length field itself. */
                 return -1;
             size -= chunk_size;
-            if ( size & 7 != 0 ) size += 8 - ( size & 7 ); /* From specs: All Wave64 chunks are byte-aligned on 8-byte boundaries, but their chunk size fields do not include any padding if it is necessary. */
+            if ( size % 8 != 0 ) size += 8 - ( size % 8 ); /* From specs: All Wave64 chunks are byte-aligned on 8-byte boundaries, but their chunk size fields do not include any padding if it is necessary. */
         }
         buf += size;
         nbuf -= size;
@@ -358,14 +360,15 @@ Have format data at this point
 /* skip any extra format info */
     if ( !is_w64 ) {
         size = get_field ( chunk->size, sizeof ( chunk->size ), f_info->bigendian );
+        if ( size % 2 != 0 ) size++;
     } else {
         size = get_field64 ( chunk64->size, sizeof ( chunk64->size ), f_info->bigendian );
         if ( size < chunk_size )
             return -1;
         size -= chunk_size;
-        if ( size & 7 != 0 ) size += 8 - ( size & 7 ); /* All Wave64 chunks are byte-aligned on 8-byte boundaries, but their chunk size fields do not include any padding if it is necessary */
+        if ( size % 8 != 0 ) size += 8 - ( size % 8 ); /* All Wave64 chunks are byte-aligned on 8-byte boundaries, but their chunk size fields do not include any padding if it is necessary */
     }
-    if ( size < sizeof ( WAVEFMT ) || size >= ( 1 << 31 ) ) /* sanity check */
+    if ( size < sizeof ( WAVEFMT ) || size >= ( 1UL << 31UL ) ) /* sanity check */
         return -1;
     size -= sizeof ( WAVEFMT );
     buf += size;
@@ -394,23 +397,28 @@ Have format data at this point
         buf += chunk_size;
         nbuf -= chunk_size;
         if ( !is_w64 ) {
-            if ( cmp ( chunk->name, "data" ) > 0 ) {
-                *data_size = get_field ( chunk->size, sizeof ( chunk->size ), f_info->bigendian ); /* return actual audio data size to the frontend */
-                if ( is_rf64 && *data_size == 0xFFFFFFFF )
-                    *data_size = get_field64 ( chunk_ds64->dataSize, sizeof ( chunk_ds64->dataSize ), f_info->bigendian ); /* return actual audio data size to the frontend */
-                break;
-            }
             size = get_field ( chunk->size, 4, f_info->bigendian );
-        } else {
-            if ( memcmp ( chunk64->guid, w64_guid_data, sizeof ( w64_guid_data ) ) == 0 ) {
-                *data_size = get_field64 ( chunk64->size, sizeof(chunk64->size), f_info->bigendian ); /* return actual audio data size to the frontend */
+            if ( size % 2 != 0 ) size++;
+            if ( cmp ( chunk->name, "data" ) > 0 ) {
+                if ( is_rf64 && size == 0xFFFFFFFF ) {
+                    size = get_field64 ( chunk_ds64->dataSize, sizeof ( chunk_ds64->dataSize ), f_info->bigendian );
+                    if ( size % 2 != 0 ) size++;
+                }
+                *data_size = size; /* return actual audio data size to the frontend */
                 break;
             }
+        } else {
             size = get_field64 ( chunk64->size, 8, f_info->bigendian );
-            if ( size >= chunk_size ) size -= chunk_size;
-            if ( size & 7 != 0 ) size += 8 - ( size & 7 ); /* All Wave64 chunks are byte-aligned on 8-byte boundaries, but their chunk size fields do not include any padding if it is necessary */
+            if ( size < chunk_size )
+                return -1;
+            size -= chunk_size;
+            if ( size % 8 != 0 ) size += 8 - ( size % 8 );
+            if ( memcmp ( chunk64->guid, w64_guid_data, sizeof ( w64_guid_data ) ) == 0 ) {
+                *data_size = size; /* return actual audio data size to the frontend */
+                break;
+            }
         }
-        if ( size >= ( 1 << 31 ) ) /* sanity check */
+        if ( size >= ( 1UL << 31UL ) ) /* sanity check */
             return -1;
         buf += size;
         nbuf -= size;
