@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-03-17, Case
+ * Source last modified: 2024-04-10, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -131,7 +131,7 @@ class CMp3Enc
     int L3_audio_encode_get_bitrate (  );
     float L3_audio_encode_get_bitrate_float (  );
     float L3_audio_encode_get_bitrate2_float (  );
-    int L3_audio_encode_get_frames (  );
+    unsigned int L3_audio_encode_get_frames (  );
     void L3_audio_encode_info_ec ( E_CONTROL * ec );    /* info only */
     void L3_audio_encode_info_head ( MPEG_HEAD * head );        /* info only */
     void L3_audio_encode_info_string ( char *s );       /* info only */
@@ -150,8 +150,8 @@ class CMp3Enc
 
 /*---- setup data -----*/
 
-    int tot_frames_out;
-    int tot_bytes_out;
+    unsigned int tot_frames_out;
+    unsigned int tot_bytes_out;
     int ave_tot_bytes_out;      // running average
 
 //int channel_adder_n;

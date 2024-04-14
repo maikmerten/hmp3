@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-03-20, Case
+ * Source last modified: 2024-04-10, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -37,6 +37,8 @@
 
 #ifndef _XHEAD_H_
 #define _XHEAD_H_
+
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -131,11 +133,11 @@ int XingHeaderUpdate ( int frames, int bs_bytes,
 // input/output
 //      buf         buffer containing mp3 frame to update
 
-int XingHeaderUpdateInfo ( int frames, int bs_bytes,
+int XingHeaderUpdateInfo ( unsigned int frames, int bs_bytes,
                        int vbr_scale,
                        unsigned char *toc, unsigned char *buf,
                        unsigned char *buf20, unsigned char *buf20B,
-                       unsigned long samples_audio,
+                       uint64_t samples_audio,
                        unsigned int bytes_mp3, unsigned int lowpass,
                        unsigned int in_samplerate, unsigned int out_samplerate, unsigned short musiccrc);
 // Update the information in a previously created mp3 frame 

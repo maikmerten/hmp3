@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-04-03, Maik Merten
+ * Source last modified: 2024-04-10, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -40,6 +40,7 @@
 #include <float.h>
 #include <math.h>
 #include <assert.h>
+#include <stdint.h>
 #include "xhead.h"
 #include "hxtypes.h"
 
@@ -482,11 +483,11 @@ XingHeaderUpdate ( int frames, int bs_bytes,
 
 /*-------------------------------------------------------------*/
 int
-XingHeaderUpdateInfo ( int frames, int bs_bytes,
+XingHeaderUpdateInfo ( unsigned int frames, int bs_bytes,
                    int vbr_scale,
                    unsigned char *toc, unsigned char *buf,
                    unsigned char *buf20, unsigned char *buf20B ,
-                   unsigned long samples_audio,
+                   uint64_t samples_audio,
                    unsigned int bytes_mp3, unsigned int lowpass,
                    unsigned int in_samplerate, unsigned int out_samplerate, unsigned short musiccrc)
                    
@@ -506,14 +507,14 @@ XingHeaderUpdateInfo ( int frames, int bs_bytes,
         in_samplerate = out_samplerate = 1;
 
     // encoder delays
-    unsigned long samples_audio_r = (unsigned long)((double)samples_audio * ((double)out_samplerate / (double)in_samplerate) + 0.5);
+    uint64_t samples_audio_r = (uint64_t)((double)samples_audio * ((double)out_samplerate / (double)in_samplerate) + 0.5);
     int pad_start = 1680;
-    unsigned long samples_mp3 = (unsigned long)frames * (h_id == 1 ? 1152 : 576);
+    uint64_t samples_mp3 = (uint64_t)frames * (h_id == 1 ? 1152 : 576);
     if (samples_mp3 - samples_audio_r - pad_start >= 4096) { // padding info won't fit in the available space, adjust frame count
-        frames = (int)((samples_audio_r + pad_start + 1152) / (h_id == 1 ? 1152 : 576));
+        frames = (unsigned int)((samples_audio_r + pad_start + 1152) / (h_id == 1 ? 1152 : 576));
         samples_mp3 = frames * (h_id == 1 ? 1152 : 576);
     }
-    long pad_total = samples_mp3 - samples_audio_r;
+    long pad_total = (long)(samples_mp3 - samples_audio_r);
     int pad_end = pad_total - pad_start;
 
     if ( h_id )

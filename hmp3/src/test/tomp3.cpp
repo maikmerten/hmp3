@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-04-03, Maik Merten
+ * Source last modified: 2024-04-11, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -51,6 +51,8 @@ const char versionstring[24] = "5.2.2, 2024-04-03";
 #include <unistd.h>
 #endif
 #include <string.h>
+#include <stdint.h>
+#include <inttypes.h>
 
 #include "port.h"
 #include "xhead.h"      /* Xing header */
@@ -77,7 +79,10 @@ const char versionstring[24] = "5.2.2, 2024-04-03";
 
 #define _FN(name)	L##name
 #define fn_char		wchar_t
+#define fn_off_t	__int64
 #define fn_fopen	_wfopen
+#define fn_fseek	_fseeki64
+#define fn_ftell	_ftelli64
 #define fn_strcmp	wcscmp
 
 static int wprint_console(FILE *stream, const wchar_t *text, size_t len)
@@ -154,7 +159,10 @@ int fn_fprintf(FILE *stream, const fn_char *format, ...)
 
 #define _FN(name)	name
 #define fn_char		char
+#define fn_off_t	off_t
 #define fn_fopen	fopen
+#define fn_fseek	fseeko
+#define fn_ftell	ftello
 #define fn_fprintf	fprintf
 #define fn_strcmp	strcmp
 
@@ -169,6 +177,7 @@ static int mpeg_select = 0;
 static int mono_convert = 0;
 static int XingHeadFlag = 0;
 static int display_flag = 1;
+static int ignore_length = 0;
 static int ec_display_flag = 0;
 
 /*---- timing test Pentium only ---*/
@@ -219,10 +228,10 @@ static int pcm_bufptr;
 static FILE *handle = NULL;
 
 /****************************/
-int ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL * ec );
+unsigned int ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL * ec );
 int get_mnr_adjust ( const fn_char *fname, int mnr[21] );
 
-int pcmhead ( FILE *handle, F_INFO * f_info, unsigned char *pcm_buffer, int *bytes_read, unsigned int *data_size );
+int pcmhead ( FILE *handle, F_INFO * f_info, unsigned char *pcm_buffer, int *bytes_read, uint64_t *data_size );
 
 int out_usage ( void );
 int print_ec ( E_CONTROL * ec );
@@ -257,7 +266,7 @@ main ( int argc, char *argv_real[] )
 {
 	int i, k;
 	E_CONTROL ec;
-	int frames;
+	unsigned int frames;
 	const fn_char *filename;
 	const fn_char *fileout;
 	char **argv = argv_real;
@@ -285,7 +294,7 @@ main ( int argc, char *argv_real[] )
 		"\n Options:"
 		"\n           -Nnsbstereo -Sfilter_select -Aalgor_select"
 		"\n           -C -X -O"
-		"\n           -D -Qquick -Ffreq_limit -Ucpu_select -TXtest1"
+		"\n           -D -IL -Qquick -Ffreq_limit -Ucpu_select -TXtest1"
 		"\n           -SBTshort_block_threshold -EC"
 		"\n           -h (detailed help)\n\n", versionstring );
 	filename = default_file;
@@ -341,10 +350,8 @@ main ( int argc, char *argv_real[] )
 			case '\0':
 				if ( k == 0 )
 					filename = pipe_file;
-				if ( k == 1 ) {
+				if ( k == 1 )
 					fileout = pipe_file;
-					display_flag = -1;
-				}
 				k++;
 				break;
 
@@ -459,7 +466,10 @@ main ( int argc, char *argv_real[] )
 
 			case 'i':
 			case 'I':
-				ec.chan_add_f0 = atoi ( argv[i] + 2 );
+				if ( ( argv[i][2] == 'l' ) || ( argv[i][2] == 'L' ) )
+					ignore_length = 1;
+				else
+					ec.chan_add_f0 = atoi ( argv[i] + 2 );
 			break;
 
 			case 'j':
@@ -532,21 +542,55 @@ main ( int argc, char *argv_real[] )
 		fprintf (stderr, "\n" );
 	}
 
-	if( frames <= 0 )
+	if( frames == 0 )
 		return 1; // return with error
 	else
 		return 0; // return normally
 }
 
+static void
+print_progress(CMp3Enc *Encode, uint64_t in_bytes, unsigned int out_bytes, int progress)
+{
+	/*
+		* progress indicator
+		*     Frames  |  Bytes In  /  Bytes Out | Progress | Current/Average Bitrate
+		*/
+	char progress_str[12] = " N/A";
+	char bytesin_str[16];
+
+	if ( in_bytes < 10000000000000ULL ) { /* we can print 13 digits max */
+		sprintf(bytesin_str, "%13" PRIu64 "", in_bytes);
+	} else {
+		double terabytes_in = (double)in_bytes / 1000000000000.0;
+		double petabytes_in = terabytes_in / 1000.0;
+		double exabytes_in = petabytes_in / 1000.0;
+		if ( exabytes_in >= 1.0 ) {
+			sprintf(bytesin_str, "%10.6f EB", exabytes_in);
+		} else if ( petabytes_in >= 1.0 ) {
+			sprintf(bytesin_str, "%10.6f PB", petabytes_in);
+		} else {
+			sprintf(bytesin_str, "%10.6f TB", terabytes_in);
+		}
+	}
+
+	if ( progress >= 0 ) sprintf ( progress_str, "%3d%%", progress );
+	fprintf (stderr, "\r  %10u  | %s / %10u |   %s   | %6.2f / %6.2f Kbps",
+		Encode->L3_audio_encode_get_frames() + 1, bytesin_str, out_bytes, progress_str,
+		Encode->L3_audio_encode_get_bitrate2_float (  ),
+		Encode->L3_audio_encode_get_bitrate_float (  ) );
+	fflush(stderr) ;
+}
+
 /*-------------------------------------------------------------*/
-int
+unsigned int
 ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 {
 	int u;
 	int nread, readbytes;
 	int pcm_size_factor;
 	unsigned int nwrite;
-	unsigned int in_bytes, out_bytes;
+	uint64_t in_bytes;
+	unsigned int out_bytes;
 	F_INFO fi;
 	int file_type, unsupported;
 	E_CONTROL ec;
@@ -554,21 +598,20 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 	IN_OUT x;
 	int bytes_in_init;
 	char info_string[80];
-	unsigned int audio_bytes = 0;
+	uint64_t audio_bytes = 0;
 	int head_bytes = 0;
 	int head_flags;
     unsigned short head_musiccrc = 0x0000;
-	int frames;
-	int frames_expected = 0;
+	unsigned int frames;
+	unsigned int frames_expected = 0;
 	INT_PAIR fb;
 	int toc_counter;
 	int vbr_scale;
 	CMp3Enc Encode;
 	int nbytes_out[2];  // test reformatted frames, num bytes in each frame
 	//unsigned char packet_buf[2000];     // reformatted frame buffer, test
-	unsigned int indatasize = 0;
+	uint64_t indatasize = 0;
 	bool ispad=false;
-	bool input_length_known=true;
 
 	nbytes_out[0] = nbytes_out[1] = 0;
 	//memset ( packet_buf, 0, sizeof ( packet_buf ) );
@@ -625,7 +668,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 	{
 		handle=stdin;
 		setbinarymode(handle);
-		input_length_known=false;
+		ignore_length=1; /* automatically ignore source length info when encoding from pipe */
 	} else {
 		handle = fn_fopen ( filename, _FN("rb") );
 		if ( handle == NULL )
@@ -645,12 +688,31 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 		fprintf (stderr, "\n UNRECOGNIZED PCM FILE TYPE" );
 		goto abort;
 	}
+	if ( ignore_length ) indatasize = UINT64_MAX;
 	if ( indatasize == 0 )
 	{
-		fprintf(stderr, "\n INPUT FILE CONTAINS NO AUDIO");
+		fprintf ( stderr, "\n INPUT FILE CONTAINS NO AUDIO" );
 		goto abort;
 	}
-	if ( (unsigned int)pcm_bufbytes > indatasize ) pcm_bufbytes = indatasize; /* make sure input doesn't read beyond data section */
+	if ( indatasize == 0xFFFFFFFF && fn_strcmp ( filename, pipe_file ) != 0 )
+	{
+		fn_off_t size = -1;
+		fn_off_t pos = fn_ftell ( handle );
+		if ( pos != -1 ) {
+			if ( fn_fseek ( handle, 0, SEEK_END ) == 0 ) {
+				size = fn_ftell ( handle );
+				if ( fn_fseek ( handle, pos, SEEK_SET ) != 0 )
+					size = -1;
+				if ( size != -1 ) size -= (pos - pcm_bufbytes); /* exclude header size */
+			}
+		}
+		if ( size < 0 || size > indatasize ) {
+			fprintf ( stderr, "\n THE INPUT FILE INDICATES MAX DATA SIZE BUT IS LARGER. THE WAV FILE IS INVALID." );
+			fprintf ( stderr, "\n USE OPTION '-IL' TO ENCODE ANYWAY." );
+			goto abort;
+		}
+	}
+	if ( (uint64_t)pcm_bufbytes > indatasize ) pcm_bufbytes = (int)indatasize; /* make sure input doesn't read beyond data section */
 
 	fprintf (stderr, "\n pcm file:  channels = %d  bits = %d,  rate = %d  type = %d",
 		fi.channels, fi.bits, fi.rate, fi.type );
@@ -786,8 +848,8 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 	*/
 
 	fprintf (stderr, "\n-------------------------------------------------------------------------------");
-	fprintf (stderr, "\n  Frames  |  Bytes In  /  Bytes Out | Progress | Current/Average Bitrate");
-	fprintf (stderr, "\n   None   |    None    /    None    |   None   | None");
+	fprintf (stderr, "\n      Frames  |     Bytes In  /  Bytes Out | Progress | Current/Average Bitrate");
+	fprintf (stderr, "\n       None   |       None    /    None    |   None   | None");
 
 	for ( u = 1;; u++ )
 	{
@@ -876,17 +938,10 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 
 		/*
 		 * progress indicator
-		 * Frames  |  Bytes In  /  Bytes Out | Progress | Current/Average Bitrate
 		 */
 		if ( ( u & 127 ) == display_flag )
 		{
-			char progress_str[8] = " N/A";
-			if ( input_length_known ) sprintf ( progress_str, "%3u%%", (unsigned int)(in_bytes * 100. / indatasize) );
-			fprintf (stderr, "\r  %6d  | %10u / %10u |   %s   | %6.2f / %6.2f Kbps",
-				Encode.L3_audio_encode_get_frames() + 1, in_bytes, out_bytes, progress_str,
-				Encode.L3_audio_encode_get_bitrate2_float (  ),
-				Encode.L3_audio_encode_get_bitrate_float (  ) );
-			fflush(stderr) ;
+			print_progress ( &Encode, in_bytes, out_bytes, (!ignore_length ? (int)(in_bytes * 100. / indatasize) : -1) );
 		}
 	}
 
@@ -927,17 +982,14 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
         head_musiccrc = XingHeaderUpdateCRC(head_musiccrc, bs_buffer, bs_bufbytes);
 	}
 
-	/* Frames  |  Bytes In  /  Bytes Out | Progress | Current/Average Bitrate */
-	/* fprintf (stderr, "\r  %6d  | %10d / %10d |   %3d%%   | %6.2f / %6.2f  Kbps", */
-	fprintf (stderr, "\r  %6d  | %10d / %10d |   100%%   | %6.2f / %6.2f  Kbps",
-		Encode.L3_audio_encode_get_frames() + 1, in_bytes, out_bytes, /* (int)(in_bytes*100./indatasize), */
-		Encode.L3_audio_encode_get_bitrate2_float (  ),
-		Encode.L3_audio_encode_get_bitrate_float (  ) );
+	/* fprintf (stderr, "\r  %10u  | %10d / %10d |   %3d%%   | %6.2f / %6.2f  Kbps", */
+	print_progress ( &Encode, in_bytes, out_bytes, ( !kbhit() ? 100 : (int)(in_bytes*100. / indatasize) ) );
+
 	fprintf (stderr, "\n-------------------------------------------------------------------------------");
 	/* fprintf (stderr, "\n Compress Ratio %3.6f%%", out_bytes*100./indatasize ); */
 	fprintf (stderr, "\n Compress Ratio ");
-	if ( input_length_known )
-		fprintf (stderr, "%3.6f%%", out_bytes*100./indatasize );
+	if ( !ignore_length )
+		fprintf (stderr, "%3.6f%%", (double)(out_bytes*100./indatasize) );
 	else
 		fprintf (stderr, "N/A");
 	//printf(" %d", Encode.L3_audio_encode_get_frames() ); // actual frames in output
@@ -953,7 +1005,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 		size_t read_res = fread ( bs_buffer, 1, head_bytes ,handout);
 		if(read_res == (size_t) head_bytes)
 		{
-			unsigned long samples_audio = audio_bytes / (fi.channels * (fi.bits / 8));
+			uint64_t samples_audio = audio_bytes / (fi.channels * (fi.bits / 8));
 			frames = Encode.L3_audio_encode_get_frames (  );
 			XingHeaderUpdateInfo ( frames, out_bytes, vbr_scale, NULL, bs_buffer, 0, 0, samples_audio, out_bytes, ec.freq_limit, fi.rate, ec.samprate, head_musiccrc );
 			fseek ( handout, 0, SEEK_SET );
@@ -987,7 +1039,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 /* parse wave file header using pcmhead_file parser */
 /*-------------------------------------------------------------*/
 
-int pcmhead ( FILE *handle, F_INFO * f_info, unsigned char *pcm_buffer, int *bytes_read, unsigned int *data_size )
+int pcmhead ( FILE *handle, F_INFO * f_info, unsigned char *pcm_buffer, int *bytes_read, uint64_t *data_size )
 {
 	int nread;
 	
@@ -1043,6 +1095,7 @@ out_usage (  )
 	"\nU         u0=generic, u2=Pentium III(SSE)"
 	"\nQ         disable_taper, q0 = base, q1 = fast, q-1 = encoder chooses"
 	"\nD         Don't display progress"
+	"\nIL        Ignore source file length."
 	"\nF         Limits encoded subbands to specified frequency, f24000"
 	"\nHF        high frequency encoding. Allows coding above 16000Hz."
 	"\n          hf1=(mode-1 granules), hf2=(all granules), -B96 or -V80 needed"
