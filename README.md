@@ -16,6 +16,10 @@ A Makefile tested on Linux is provided in this directory. With the usual build s
 
 A binary with debug symbols can be generated with `make debug`.
 
+## Documentation
+
+The encoder is documented over at the [HydrogenAudio Wiki page of the Helix MP3 encoder](https://wiki.hydrogenaud.io/index.php?title=Helix_MP3_Encoder).
+
 ## Use examples
 
 * Create a ~128 kbps VBR MP3 file:
@@ -26,7 +30,7 @@ A binary with debug symbols can be generated with `make debug`.
   
   `hmp3 input.wav output.mp3 -B64`
 
-  (Note that `-B` denotes the bitrate per channel, thus stereo input files are being encoded with 128 kbps.)
+  (Note that `-B` denotes the bitrate **per channel**, thus stereo input files are being encoded with 128 kbps.)
 
 * Create a ~185 kbps VBR MP3 file, encode frequencies above 16 kHz, with a highpass filter of 19 kHz applied:
   
