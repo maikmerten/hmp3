@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-04-14, Maik Merten
+ * Source last modified: 2024-04-22, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -226,6 +226,7 @@ static unsigned char *pcm_buffer;
 static int pcm_bufbytes;
 static int pcm_bufptr;
 static FILE *handle = NULL;
+static int printcount;
 
 /****************************/
 unsigned int ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL * ec );
@@ -549,8 +550,17 @@ main ( int argc, char *argv_real[] )
 }
 
 static void
-print_progress(CMp3Enc *Encode, uint64_t in_bytes, unsigned int out_bytes, int progress)
+print_progress(CMp3Enc *Encode, uint64_t in_bytes, unsigned int out_bytes, int progress, int force_update)
 {
+	if(!force_update) {
+		if(--printcount <= 0) {
+			printcount = 20;
+		} else {
+			// skip most progress updates to avoid printf performance problems
+			return;
+		}
+	}
+
 	/*
 		* progress indicator
 		*     Frames  |  Bytes In  /  Bytes Out | Progress | Current/Average Bitrate
@@ -843,6 +853,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 
 	fprintf (stderr, "\n" );
 
+	printcount = 0;
 	/*
 	* the encoding loop
 	*/
@@ -941,7 +952,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 		 */
 		if ( ( u & 127 ) == display_flag )
 		{
-			print_progress ( &Encode, in_bytes, out_bytes, (!ignore_length ? (int)(in_bytes * 100. / indatasize) : -1) );
+			print_progress ( &Encode, in_bytes, out_bytes, (!ignore_length ? (int)(in_bytes * 100. / indatasize) : -1), false);
 		}
 	}
 
@@ -983,7 +994,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 	}
 
 	/* fprintf (stderr, "\r  %10u  | %10d / %10d |   %3d%%   | %6.2f / %6.2f  Kbps", */
-	print_progress ( &Encode, in_bytes, out_bytes, ( !kbhit() ? 100 : (int)(in_bytes*100. / indatasize) ) );
+	print_progress ( &Encode, in_bytes, out_bytes, ( !kbhit() ? 100 : (int)(in_bytes*100. / indatasize) ), true);
 
 	fprintf (stderr, "\n-------------------------------------------------------------------------------");
 	/* fprintf (stderr, "\n Compress Ratio %3.6f%%", out_bytes*100./indatasize ); */
