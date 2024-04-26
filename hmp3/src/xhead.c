@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-04-14, Maik Merten
+ * Source last modified: 2024-04-26, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -507,15 +507,18 @@ XingHeaderUpdateInfo ( unsigned int frames, int bs_bytes,
         in_samplerate = out_samplerate = 1;
 
     // encoder delays
-    uint64_t samples_audio_r = (uint64_t)((double)samples_audio * ((double)out_samplerate / (double)in_samplerate) + 0.5);
     int pad_start = 1680;
-    uint64_t samples_mp3 = (uint64_t)frames * (h_id == 1 ? 1152 : 576);
-    if (samples_mp3 - samples_audio_r - pad_start >= 4096) { // padding info won't fit in the available space, adjust frame count
-        frames = (unsigned int)((samples_audio_r + pad_start + 1152) / (h_id == 1 ? 1152 : 576));
-        samples_mp3 = frames * (h_id == 1 ? 1152 : 576);
+    int pad_end = 0;
+    if ( samples_audio > 0 ) {
+        uint64_t samples_audio_r = (uint64_t)((double)samples_audio * ((double)out_samplerate / (double)in_samplerate) + 0.5);
+        uint64_t samples_mp3 = (uint64_t)frames * (h_id == 1 ? 1152 : 576);
+        if (samples_mp3 - samples_audio_r - pad_start >= 4096) { // padding info won't fit in the available space, adjust frame count
+            frames = (unsigned int)((samples_audio_r + pad_start + 1152) / (h_id == 1 ? 1152 : 576));
+            samples_mp3 = frames * (h_id == 1 ? 1152 : 576);
+        }
+        long pad_total = (long)(samples_mp3 - samples_audio_r);
+        pad_end = pad_total - pad_start;
     }
-    long pad_total = (long)(samples_mp3 - samples_audio_r);
-    int pad_end = pad_total - pad_start;
 
     if ( h_id )
     {   // mpeg1

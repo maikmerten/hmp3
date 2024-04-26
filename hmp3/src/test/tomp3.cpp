@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-04-26, Maik Merten
+ * Source last modified: 2024-04-26, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -1060,6 +1060,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 		{
 			uint64_t samples_audio = audio_bytes / (fi.channels * (fi.bits / 8));
 			frames = Encode.L3_audio_encode_get_frames (  );
+			if ( stop_encoder ) samples_audio = 0;
 			XingHeaderUpdateInfo ( frames, out_bytes, vbr_scale, NULL, bs_buffer, 0, 0, samples_audio, out_bytes, ec.freq_limit, fi.rate, ec.samprate, head_musiccrc );
 			fseek ( handout, 0, SEEK_SET );
 			fwrite ( bs_buffer, 1, head_bytes, handout );
