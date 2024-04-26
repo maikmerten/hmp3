@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: $Id: port.h,v 1.1 2005/07/13 17:22:25 rggammon Exp $ 
+ * Source last modified: 2024-04-23, Case 
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -47,7 +47,7 @@ extern "C" {
 #endif
 
 /*--- no kb function unless DOS ---*/
-#ifndef _CONSOLE
+#ifndef _WIN32
     static int kbhit (  )
     {
         return 0;

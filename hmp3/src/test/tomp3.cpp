@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-04-14, Maik Merten
+ * Source last modified: 2024-04-23, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -85,6 +85,46 @@ const char versionstring[24] = "5.2.3, 2024-04-14";
 #define fn_ftell	_ftelli64
 #define fn_strcmp	wcscmp
 
+static HANDLE get_console_handle()
+{
+	HANDLE hOut = GetStdHandle(STD_ERROR_HANDLE);
+	if (!hOut || hOut == INVALID_HANDLE_VALUE || GetFileType(hOut) != FILE_TYPE_CHAR) hOut = NULL;
+	return hOut;
+}
+
+int con_printf(FILE *stream, const char *format, ...)
+{
+	int ret;
+	va_list argptr;
+	static HANDLE hConsoleOut = get_console_handle();
+
+	va_start(argptr, format);
+
+	if (hConsoleOut) { /* output to console */
+		char buf[1024];
+
+		ret = _vsnprintf(buf, sizeof(buf), format, argptr);
+
+		if (ret > 0) {
+			buf[sizeof(buf) - 1] = '\0'; /* ensure string is null-terminated */
+			DWORD out;
+			size_t len = strlen(buf);
+			if (len >= sizeof(buf)) len = sizeof(buf) - 1;
+			if (WriteConsoleA(hConsoleOut, buf, (DWORD)len, &out, NULL) != 0) {
+				ret = (int)out;
+			} else {
+				ret = -1;
+			}
+		}
+	} else {
+		ret = vfprintf(stream, format, argptr);
+	}
+
+	va_end(argptr);
+
+	return ret;
+}
+
 static int wprint_console(FILE *stream, const wchar_t *text, size_t len)
 {
 	DWORD out;
@@ -165,6 +205,7 @@ int fn_fprintf(FILE *stream, const fn_char *format, ...)
 #define fn_ftell	ftello
 #define fn_fprintf	fprintf
 #define fn_strcmp	strcmp
+#define con_printf	fprintf
 
 #endif /* #ifdef _WIN32 - platform specific code + unicode handling */
 
@@ -574,7 +615,7 @@ print_progress(CMp3Enc *Encode, uint64_t in_bytes, unsigned int out_bytes, int p
 	}
 
 	if ( progress >= 0 ) sprintf ( progress_str, "%3d%%", progress );
-	fprintf (stderr, "\r  %10u  | %s / %10u |   %s   | %6.2f / %6.2f Kbps",
+	con_printf (stderr, "\r  %10u  | %s / %10u |   %s   | %6.2f / %6.2f Kbps",
 		Encode->L3_audio_encode_get_frames() + 1, bytesin_str, out_bytes, progress_str,
 		Encode->L3_audio_encode_get_bitrate2_float (  ),
 		Encode->L3_audio_encode_get_bitrate_float (  ) );
@@ -939,7 +980,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 		/*
 		 * progress indicator
 		 */
-		if ( ( u & 127 ) == display_flag )
+		if ( ( u & 511 ) == display_flag )
 		{
 			print_progress ( &Encode, in_bytes, out_bytes, (!ignore_length ? (int)(in_bytes * 100. / indatasize) : -1) );
 		}
