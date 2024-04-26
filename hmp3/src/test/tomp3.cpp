@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-04-23, Case
+ * Source last modified: 2024-04-26, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -35,7 +35,7 @@
  *   
  * ***** END LICENSE BLOCK ***** */
 
-const char versionstring[24] = "5.2.3, 2024-04-14";
+const char versionstring[24] = "5.2.3, 2024-04-26";
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -53,6 +53,7 @@ const char versionstring[24] = "5.2.3, 2024-04-14";
 #include <string.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <signal.h>
 
 #include "port.h"
 #include "xhead.h"      /* Xing header */
@@ -221,6 +222,8 @@ static int display_flag = 1;
 static int ignore_length = 0;
 static int ec_display_flag = 0;
 
+static volatile int stop_encoder = 0;
+
 /*---- timing test Pentium only ---*/
 #ifdef TIME_TEST
 static double tot_cycles;
@@ -302,6 +305,14 @@ int get_wchar_commandline( wchar_t ***wargv )
 #endif
 
 /*===============================================*/
+// Handler for SIGINT (usually CTRL+c)
+void handler_sigint(int sig)
+{
+	stop_encoder = 1;
+}
+
+
+/*===============================================*/
 int
 main ( int argc, char *argv_real[] )
 {
@@ -340,6 +351,8 @@ main ( int argc, char *argv_real[] )
 		"\n           -h (detailed help)\n\n", versionstring );
 	filename = default_file;
 	fileout = default_outfile;
+
+	signal(SIGINT, handler_sigint);
 
 	ec.mode = 1;
 	ec.bitrate = -1;    /* let encoder choose */
@@ -552,7 +565,7 @@ main ( int argc, char *argv_real[] )
 	else
 		ec.vbr_flag = 0;
 
-	fprintf (stderr, "\n\n  <press any key to stop encoder>" );
+	fprintf (stderr, "\n  <press CTRL+c to stop encoder> \n" );
 
 /******** encode *********/
 #ifdef ETIME_TEST
@@ -971,10 +984,9 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 		}
 
 		/*
-		 * bail out if user hits key
+		 * bail out if SIGINT-handler signaled stop
 		 */
-
-		if ( kbhit (  ) )
+		if ( stop_encoder )
 			break;
 
 		/*
@@ -1024,7 +1036,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 	}
 
 	/* fprintf (stderr, "\r  %10u  | %10d / %10d |   %3d%%   | %6.2f / %6.2f  Kbps", */
-	print_progress ( &Encode, in_bytes, out_bytes, ( !kbhit() ? 100 : (int)(in_bytes*100. / indatasize) ) );
+	print_progress ( &Encode, in_bytes, out_bytes, ( !stop_encoder ? 100 : (int)(in_bytes*100. / indatasize) ) );
 
 	fprintf (stderr, "\n-------------------------------------------------------------------------------");
 	/* fprintf (stderr, "\n Compress Ratio %3.6f%%", out_bytes*100./indatasize ); */
@@ -1071,8 +1083,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 		fclose ( handle );
 	if(handout != NULL)
 		fclose ( handout );
-	while ( kbhit (  ) )
-		getch (  );     /* purge key board buffer */
+
 	return Encode.L3_audio_encode_get_frames() + 1;
 }
 

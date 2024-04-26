@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-04-23, Case 
+ * Source last modified: 2024-04-26, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -42,27 +42,5 @@
 #define O_BINARY 0
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/*--- no kb function unless DOS ---*/
-#ifndef _WIN32
-    static int kbhit (  )
-    {
-        return 0;
-    }
-    static int getch (  )
-    {
-        return 0;
-    }
-#else
-#pragma warning(disable:4032)   // conio has problems
-#include <conio.h>
-#endif
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif   //_PORT_H_
