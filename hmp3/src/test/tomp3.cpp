@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-04-26, Case
+ * Source last modified: 2024-05-13, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -1123,15 +1123,11 @@ int
 out_usage (  )
 {
 	fprintf (stderr,
-	//"\nlayer"
-	//"\n        layer = 1 for Layer I, = 2 for Layer II, default = Layer III"
 	"\nB[bitrate]Per channel bitrate in kbits per second."
 	"\n          Encoder will choose if -1. (default)"
 	"\nM[mode]   Select encoding mode: mode-0 stereo=0 mode-1 stereo=1 dual=2 mono=3."
 	"\nV[vbr_scale]"
 	"\n          Selects vbr encoding and vbr scale.  Valid values are 0-150."
-	//"\nhf        Enables high frequency encoding (mode-1 stereo only)"
-	//"\nhf2       Enables high frequency encoding (all modes)"
 	"\nN[nsbstereo]"
 	"\n          Applies to mode-1 stereo mode only.  Number of subbands to"
 	"\n          encode in independent stereo.  Valid values are 4, 8, 12, and 16."
@@ -1152,17 +1148,14 @@ out_usage (  )
 	"\nF         Limits encoded subbands to specified frequency, f24000"
 	"\nHF        high frequency encoding. Allows coding above 16000Hz."
 	"\n          hf1=(mode-1 granules), hf2=(all granules), -B96 or -V80 needed"
-	"\nTX        tx6, test reserved 6 or 8 seems best (startup_adjustNT1B)"
-	"\n            ** v5.0  TEST 1  as of 8/15/00"
-	"\n            ** v5.0  TEST 2  8/18/00"
-	"\n            ** v5.0  TEST 3  default tx6 (prev = tx8)"
-	"\n            ** v5.0  TEST 4  mods to short fnc_sf, ms corr. hf enable > 80"
-	"\n            ** v5.0  TEST 5  fix odd npart, ix clear"
-	"\n            ** v5.0  TEST 6  add reformatted frames"
-	"\n            ** v5.0  TEST 7  drop V4 amod"
-	"\n            ** v5.1  2005.08.09 (see CVS log for details)"
+	"\nT         Bias for VBR quality scale, default 0. Valid values are -40-50."
+	"\n          Can be used to reach higher or lower VBR bitrates than with the"
+	"\n          base VBR scale -V"
+	"\nTX        Band noise target adjustments (startup_adjustNT1B), default 6"
+	"\n          6 or 8 presumed best"
 	"\nSBT[short_block_threshold]"
-	"\n          short_block_threshold default = 700"
+	"\n          short_block_threshold, default = 700"
+	"\n          Lower values mean increased sensitivity to transients."
 	"\nEC        Display Encoder Setting\n" );
 
 	return 0;
