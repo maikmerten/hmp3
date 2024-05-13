@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2022-11-24, Maik Merten
+ * Source last modified: 2024-05-13, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -524,7 +524,7 @@ ifnc_noise_actual ( const float x34[], const float x[], int gsf, int n, int log_
 //        qx = RoundFtoL ( igain * x34[i] + ( 0.0f - 0.0946f ) ) ;
         tmp = ( igain * x34[i] + ( 0.0f - 0.0946f ) ) ;
         qx = (int)(tmp + copysignf(0.5f, tmp));
-        if ( qx < 256 )
+        if ( qx >= 0 && qx < 256 )
         {
             xhat = gain * look_ix43[qx];
         }
@@ -712,6 +712,8 @@ vect_quantB2 ( float x34[], int ix[], int gsf, int n, float qadjust )
         iq = ( int ) t;
         if ( iq > 31 )
             iq = 31;
+        if ( iq < 0 )
+            iq = 0;
         ix[i] = ( int ) ( t - quant_table[iq] );
         if ( ix[i] > ixmax )
             ixmax = ix[i];
