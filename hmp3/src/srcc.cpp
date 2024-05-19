@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-03-16, Case
+ * Source last modified: 2024-05-19, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -63,8 +63,13 @@
 
 /*==================================================================*/
 Csrc::Csrc (  ):
-src_bytes_out ( 0 ), src_filter ( 0 )
+src_bytes_out ( 0 ), src_filter ( 0 ), itof_buf ( NULL )
 {
+}
+
+Csrc::~Csrc()
+{
+    delete[] itof_buf;
 }
 
 /*==================================================================*/
@@ -781,6 +786,9 @@ Csrc::sr_convert_init ( int source, int channels, int bits, int is_float,
     m_channels = channels;
     m_bits = bits;
     m_is_float = is_float;
+    m_frames_to_convert = 1152;
+    if (source > target) m_frames_to_convert *= ((source / target) + 1);
+    itof_buf = new float[m_frames_to_convert * 2];
 
     return min_inbuf_bytes;
 }
@@ -799,26 +807,26 @@ Csrc::sr_convert ( unsigned char xin[], float yout[] )
         if (m_bits == 32) {
             if (m_is_float) {
                 float *src = (float *)xin;
-                for ( int i = 0; i < 1152 * m_channels; ++i ) {
+                for ( int i = 0; i < m_frames_to_convert * m_channels; ++i ) {
                     *dst++ = (float)(*src++) * 32768.0f;
                 }
             } else {
                 int *src = (int *)xin;
 
-                for ( int i = 0; i < 1152 * m_channels; ++i ) {
+                for ( int i = 0; i < m_frames_to_convert * m_channels; ++i ) {
                     *dst++ = (float)( (*src++) / 65536.0f );
                 }
             }
         } else if (m_bits == 24) {
             unsigned char *src = (unsigned char *)xin;
-            for (int i = 0; i < 1152 * m_channels; ++i) {
+            for (int i = 0; i < m_frames_to_convert * m_channels; ++i) {
                 int s = ( ( src[2] << 24 ) | ( src[1] << 16 ) | ( src[0] << 8 ) ) >> 8;
                 *dst++ = (float)( (float)s / 256.0f );
                 src += 3;
             }
         } else if (m_bits == 16) {
             short *src = (short *)xin;
-            for ( int i = 0; i < 1152 * m_channels; ++i ) {
+            for ( int i = 0; i < m_frames_to_convert * m_channels; ++i ) {
                 *dst++ = (float)*src++;
             }
         }

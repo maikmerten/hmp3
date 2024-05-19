@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-05-13, Maik Merten
+ * Source last modified: 2024-05-19, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -1019,7 +1019,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 	// write zero samples into the pcm buffer
 	memset(pcm_buffer,0,bytes_in_init*4);
 
-	if(fi.rate < 32000) // adjust for MPEG2
+	if(ec.samprate < 32000) // adjust for MPEG2
 		frames_expected *= 2;
 
 	while(Encode.L3_audio_encode_get_frames() < frames_expected) {

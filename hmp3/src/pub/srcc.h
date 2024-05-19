@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-03-16, Case
+ * Source last modified: 2024-05-19, Case
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -86,11 +86,8 @@ class Csrc
 {
 
   public:
-    Csrc (  );
-
-    ~Csrc (  )
-    {
-    }
+    Csrc();
+    ~Csrc();
 
     int sr_convert_init ( int source, int channels, int bits, int is_float,
                           int target, int target_channels,
@@ -103,8 +100,8 @@ class Csrc
 
     unsigned int src_bytes_out;
     int src_filter;
-    int m_channels, m_bits, m_is_float;
-    float itof_buf[1152 * 2];
+    int m_channels, m_bits, m_is_float, m_frames_to_convert;
+    float *itof_buf;
 
 //-functions------------------------------------------------
     int gen_src_filter ( int source0, int target );
