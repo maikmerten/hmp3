@@ -829,7 +829,7 @@ Csrc::sr_convert ( unsigned char xin[], float yout[] )
     } else if (m_bits == 8) {
         unsigned char *src = (unsigned char*)xin;
         for ( int i = 0; i < m_frames_to_convert * m_channels; ++i ) {
-            *dst++ = (((float)*src++) - 127.0f) * (255.0f);
+            *dst++ = (((float)*src++) - 128.0f) * (255.0f);
         }
     }
 
