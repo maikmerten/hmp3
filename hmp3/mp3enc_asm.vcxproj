@@ -132,7 +132,6 @@
     <ClCompile Include="src\spdsmr.c" />
     <ClCompile Include="src\srcc.cpp" />
     <ClCompile Include="src\srccf.cpp" />
-    <ClCompile Include="src\srccfb.cpp" />
     <ClCompile Include="src\test\tomp3.cpp" />
     <ClCompile Include="src\xhead.c" />
   </ItemGroup>

@@ -41,7 +41,7 @@ AR=ar
 
 # source files for encoder library within SRC_PREFIX
 SRC_LIB_C=amodini2.c cnts.c detect.c emap.c l3init.c l3pack.c mhead.c pcmhpm.c setup.c spdsmr.c xhead.c cnt.c emdct.c filter2.c hwin.c l3math.c pow34.c sbt.c xhwin.c xsbt.c
-SRC_LIB_CPP=bitallo.cpp bitallo1.cpp bitallo3.cpp bitalloc.cpp bitallos.cpp bitallosc.cpp mp3enc.cpp srcc.cpp srccf.cpp srccfb.cpp
+SRC_LIB_CPP=bitallo.cpp bitallo1.cpp bitallo3.cpp bitalloc.cpp bitallos.cpp bitallosc.cpp mp3enc.cpp srcc.cpp srccf.cpp
 
 # source files for encoder application
 SRC_APP=test/tomp3.cpp
