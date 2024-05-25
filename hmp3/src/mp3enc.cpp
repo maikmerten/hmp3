@@ -986,7 +986,7 @@ CMp3Enc::gen_vbr_table ( int h_mode, int samplerate, int max_tot_bitrate )
         vbr_main_framebytes[15] = 9999999;
 
         vbr_pool_target = 256;  // use more pool with restricted br
-        for ( i = 14; i >= 1; i-- )
+        for ( i = 14; i >= 2; i-- )
         {
             if ( max_tot_bitrate >= vbr_br_table[i] )
                 break;
@@ -1022,7 +1022,7 @@ CMp3Enc::gen_vbr_table ( int h_mode, int samplerate, int max_tot_bitrate )
         vbr_main_framebytes[15] = 9999999;
 
         vbr_pool_target = 128;  // use more pool with restricted br
-        for ( i = 14; i >= 1; i-- )
+        for ( i = 14; i >= 2; i-- )
         {
             if ( max_tot_bitrate >= vbr_br_tableMPEG2[i] )
                 break;
