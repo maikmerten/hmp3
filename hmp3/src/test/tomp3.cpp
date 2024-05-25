@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-05-19, Case
+ * Source last modified: 2024-05-25, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -1128,6 +1128,7 @@ out_usage (  )
 	"\nM[mode]   Select encoding mode: mode-0 stereo=0 mode-1 stereo=1 dual=2 mono=3."
 	"\nV[vbr_scale]"
 	"\n          Selects vbr encoding and vbr scale.  Valid values are 0-150."
+	"\nL         vbr per channel bitrate limit in kbits per second."
 	"\nN[nsbstereo]"
 	"\n          Applies to mode-1 stereo mode only.  Number of subbands to"
 	"\n          encode in independent stereo.  Valid values are 4, 8, 12, and 16."

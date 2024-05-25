@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-04-10, Case
+ * Source last modified: 2024-05-25, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -641,7 +641,7 @@ CMp3Enc::L3_audio_encode_init ( E_CONTROL * ec_arg )
     {   // MPEG1
         if ( ec.vbr_flag )
         {
-            gen_vbr_table ( h.mode, divisor, 2 * ec.vbr_br_limit );
+            gen_vbr_table ( h.mode, divisor, (ec.mode == 3 ? 1 : 2) * ec.vbr_br_limit );
             // AveTargetBits reset by gen_vbr_table
             iL3_audio_encode_function = iL3_audio_encode_vbr_MPEG1;
         }
@@ -650,7 +650,7 @@ CMp3Enc::L3_audio_encode_init ( E_CONTROL * ec_arg )
     {   // mpeg 2
         if ( ec.vbr_flag )
         {
-            gen_vbr_table ( h.mode, divisor, 2 * ec.vbr_br_limit );
+            gen_vbr_table ( h.mode, divisor, (ec.mode == 3 ? 1 : 2) * ec.vbr_br_limit );
             // AveTargetBits reset by gen_vbr_table
             iL3_audio_encode_function = iL3_audio_encode_vbr_MPEG2;
         }
@@ -986,7 +986,7 @@ CMp3Enc::gen_vbr_table ( int h_mode, int samplerate, int max_tot_bitrate )
         vbr_main_framebytes[15] = 9999999;
 
         vbr_pool_target = 256;  // use more pool with restricted br
-        for ( i = 14; i >= 12; i-- )
+        for ( i = 14; i >= 1; i-- )
         {
             if ( max_tot_bitrate >= vbr_br_table[i] )
                 break;
@@ -1022,7 +1022,7 @@ CMp3Enc::gen_vbr_table ( int h_mode, int samplerate, int max_tot_bitrate )
         vbr_main_framebytes[15] = 9999999;
 
         vbr_pool_target = 128;  // use more pool with restricted br
-        for ( i = 14; i >= 12; i-- )
+        for ( i = 14; i >= 1; i-- )
         {
             if ( max_tot_bitrate >= vbr_br_tableMPEG2[i] )
                 break;
