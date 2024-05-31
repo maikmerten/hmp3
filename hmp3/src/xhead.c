@@ -46,7 +46,7 @@
 
 static const char tag_vbr[] = { "Xing" };
 static const char tag_cbr[] = { "Info" };
-static const char tag_shortversion[] = { "LAMEH5.23" };
+static const char tag_shortversion[] = { "LAMEH5.24" };
 
 
 // 4   Xing
