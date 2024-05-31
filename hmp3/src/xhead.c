@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-04-26, Case
+ * Source last modified: 2024-05-31, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -46,7 +46,7 @@
 
 static const char tag_vbr[] = { "Xing" };
 static const char tag_cbr[] = { "Info" };
-static const char tag_shortversion[] = { "LAMEH5.23" };
+static const char tag_shortversion[] = { "LAMEH5.24" };
 
 
 // 4   Xing
