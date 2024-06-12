@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-05-31, Maik Merten
+ * Source last modified: 2024-06-12, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -35,7 +35,7 @@
  *   
  * ***** END LICENSE BLOCK ***** */
 
-const char versionstring[24] = "5.2.4, 2024-05-31";
+const char versionstring[24] = "5.2.4, 2024-06-12";
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -833,6 +833,9 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 	{
 		handout = stdout;
 		setbinarymode(handout);
+		// If output is stdout, flush frames immediately to keep delay low.
+		// This is useful, e.g., for web radio streaming.
+		bs_trigger = 0;
 	} else
 		handout = fn_fopen(fileout, _FN("w+b"));
 
