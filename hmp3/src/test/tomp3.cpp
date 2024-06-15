@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-06-12, Maik Merten
+ * Source last modified: 2024-06-15, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -35,7 +35,7 @@
  *   
  * ***** END LICENSE BLOCK ***** */
 
-const char versionstring[24] = "5.2.4, 2024-06-12";
+const char versionstring[24] = "5.2.4, 2024-06-15";
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -264,7 +264,6 @@ static FILE *handout = NULL;
 /* buffer defined in terms of float for pcm convert (float>32) */
 
 /********  pcm buffer ********/
-//#define PCM_BUFBYTES  (6*sizeof(short)*2304)  /* 6 stereo frames */
 #define PCM_BUFBYTES  (128*sizeof(float)*2304)  /* 128 stereo frames */
 static unsigned char *pcm_buffer;
 static int pcm_bufbytes;
@@ -635,6 +634,22 @@ print_progress(CMp3Enc *Encode, uint64_t in_bytes, unsigned int out_bytes, int p
 	fflush(stderr) ;
 }
 
+static int
+compute_pcmreadbytes( int pcm_size_factor, uint64_t indatasize, uint64_t bytes, int bytes_in_init, bool low_delay)
+{
+	// for low delay, return smallest number of bytes the encoder expects
+	if(low_delay) {
+		return bytes_in_init;
+	}
+
+	// compute number of bytes to fill up the buffer somewhat complete
+	int readbytes = ((PCM_BUFBYTES - (PCM_BUFBYTES % pcm_size_factor)) - pcm_bufbytes); /* pcm_bufbytes needs to be divisible by frame size */
+	if ( readbytes + bytes > indatasize ) {
+ 		readbytes = indatasize - bytes; /* make sure input doesn't read beyond data section */
+	}
+	return readbytes;
+}
+
 /*-------------------------------------------------------------*/
 unsigned int
 ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
@@ -666,6 +681,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 	//unsigned char packet_buf[2000];     // reformatted frame buffer, test
 	uint64_t indatasize = 0;
 	bool ispad=false;
+	bool low_delay=false;
 
 	nbytes_out[0] = nbytes_out[1] = 0;
 	//memset ( packet_buf, 0, sizeof ( packet_buf ) );
@@ -836,6 +852,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 		// If output is stdout, flush frames immediately to keep delay low.
 		// This is useful, e.g., for web radio streaming.
 		bs_trigger = 0;
+		low_delay = true;
 	} else
 		handout = fn_fopen(fileout, _FN("w+b"));
 
@@ -846,8 +863,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 	}
 
 	if ( pcm_bufbytes < bytes_in_init ) {
-		readbytes = ((PCM_BUFBYTES - (PCM_BUFBYTES % pcm_size_factor)) - pcm_bufbytes); /* pcm_bufbytes needs to be divisible by frame size */
-		if ( readbytes + pcm_bufbytes > indatasize ) readbytes = indatasize - pcm_bufbytes; /* make sure input doesn't read beyond data section */
+		readbytes = compute_pcmreadbytes(pcm_size_factor, indatasize, pcm_bufbytes, bytes_in_init, low_delay);
 		nread = fread ( pcm_buffer + pcm_bufbytes, 1, readbytes, handle );
 		if (nread < 0) {
 			fprintf(stderr, "\n FILE READ ERROR");
@@ -913,8 +929,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 		if ( pcm_bufbytes < bytes_in_init )
 		{
 			memmove ( pcm_buffer, pcm_buffer + pcm_bufptr, pcm_bufbytes );
-			readbytes = ( ( PCM_BUFBYTES - (PCM_BUFBYTES % pcm_size_factor) ) - pcm_bufbytes ); /* pcm_bufbytes needs to be divisible by frame size */
-			if ( readbytes + audio_bytes > indatasize ) readbytes = indatasize - audio_bytes; /* make sure input doesn't read beyond data section */
+			readbytes = compute_pcmreadbytes( pcm_size_factor, indatasize, audio_bytes, bytes_in_init, low_delay );
 			nread = fread ( pcm_buffer + pcm_bufbytes, 1, readbytes, handle );
 
 			if(nread > 0)
@@ -995,7 +1010,7 @@ ff_encode ( const fn_char *filename, const fn_char *fileout, E_CONTROL *ec0 )
 		/*
 		 * progress indicator
 		 */
-		if ( ( u & 511 ) == display_flag )
+		if ( ( u & (low_delay ? 31 : 511) ) == display_flag )
 		{
 			print_progress ( &Encode, in_bytes, out_bytes, (!ignore_length ? (int)(in_bytes * 100. / indatasize) : -1) );
 		}
