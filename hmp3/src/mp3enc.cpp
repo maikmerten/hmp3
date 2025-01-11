@@ -1,5 +1,5 @@
 /* ***** BEGIN LICENSE BLOCK *****  
- * Source last modified: 2024-05-25, Maik Merten
+ * Source last modified: 2025-01-11, Maik Merten
  *   
  * Portions Copyright (c) 1995-2005 RealNetworks, Inc. All Rights Reserved.  
  *       
@@ -344,7 +344,7 @@ CMp3Enc::L3_audio_encode_init ( E_CONTROL * ec_arg )
 //
 
     if ( ( ec.vbr_flag == 0 ) && ( ec.samprate > 24000 )
-         && ( ec.bitrate < 48 ) )
+         && ( ec.bitrate < 32 ) )
     {
         // for public use, fail ridiculous bitrates
         return 0;
